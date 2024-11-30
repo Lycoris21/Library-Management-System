@@ -1,8 +1,11 @@
 package view;
 
-import java.awt.*;
+import java.sql.*;
 import javax.swing.*;
-
+import controller.UserController;
+import java.awt.*;
+import model.User;
+import utility.Database;
 
 /**
  * @author Christine Ann Dejito
@@ -13,17 +16,27 @@ public class Login extends javax.swing.JFrame {
         initComponents();
     }
     
+    private void loginActionPerformed(java.awt.event.ActionEvent evt) {  
+        // TODO add your handling code here: 
+        String username = uname.getText();
+        String password = pass.getText();
+
+        if (validateLogin(username, password)) {
+            // Login successful, proceed to main application
+            JOptionPane.showMessageDialog(this, "Login successful!");
+            AdminDashboard ad = new AdminDashboard();
+            ad.setVisible(true);
+            setVisible(false);
+        } else {
+            JOptionPane.showMessageDialog(this, "Invalid username or password");
+        }      
+    }
+    
     private void regMouseClicked(java.awt.event.MouseEvent evt) {                                      
             Register r = new Register();
             r.setVisible(true);
             setVisible(false);
-    }     
-    
-    private void loginActionPerformed(java.awt.event.ActionEvent evt) {                                      
-            AdminDashboard ad = new AdminDashboard();
-            ad.setVisible(true);
-            setVisible(false);
-    }
+    } 
     
     public static void main(String[] args) {
         
@@ -52,6 +65,24 @@ public class Login extends javax.swing.JFrame {
         
     }
     
+   private boolean validateLogin(String username, String password) {
+        // Create a new Database object to get the connection
+        Database db = new Database();
+        UserController userController = new UserController(db);
+
+        // Fetch the user from the database by username
+        User user = userController.getUserByUsername(username);
+
+        if (user != null && user.getPassword() != null) {
+            // Compare the passwords (assuming plaintext for simplicity; use hashed comparison in production)
+            return password.equals(user.getPassword());
+        }
+
+        // If user doesn't exist or password is null
+        return false;
+    }
+
+    
     private void initComponents(){
         title = new JLabel();
         title.setText("HIRAYA");
@@ -74,7 +105,7 @@ public class Login extends javax.swing.JFrame {
         password.setBounds(100, 185, 200, 50);
         
         
-        pass = new JTextField();
+        pass = new JPasswordField();
         pass.setBounds(100, 235, 700, 50);
         
         login = new JButton();
@@ -102,7 +133,6 @@ public class Login extends javax.swing.JFrame {
         panel1.add(login);
         panel1.add(reg);
         
-        
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1535,820);
@@ -115,24 +145,26 @@ public class Login extends javax.swing.JFrame {
         add(title);
         add(panel1);
         
-        reg.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                regMouseClicked(evt);
-            }     
-        });
         
         login.addActionListener(new java.awt.event.ActionListener(){
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                     loginActionPerformed(evt);
                 } 
         });
+        
+        reg.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                regMouseClicked(evt);
+            }     
+        });
+
     }
     
     private JLabel title;
     private JLabel username;
     private JTextField uname;
     private JLabel password;
-    private JTextField pass;
+    private JPasswordField pass;
     private JButton login;
     private JLabel reg;
     private JPanel panel1;

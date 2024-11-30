@@ -71,7 +71,7 @@ public class AdminDashboard extends javax.swing.JFrame{
         apps.setFont(new Font("Serif", Font.PLAIN, 25));
         apps.setForeground(Color.WHITE);
         
-        ImageIcon pp = new ImageIcon("src/view/jingliu.jpg");
+        ImageIcon pp = new ImageIcon("src/images/jingliu.jpg");
         
         username = new JLabel();
         username.setText("Kwesten Ann");

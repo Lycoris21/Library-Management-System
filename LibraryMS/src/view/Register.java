@@ -2,6 +2,9 @@ package view;
 
 import java.awt.*;
 import javax.swing.*;
+import utility.Database;
+import java.sql.*;
+import model.User;
 
 
 /**
@@ -13,11 +16,28 @@ public class Register extends javax.swing.JFrame {
         initComponents();
     }
     
+    private void registerActionPerformed(java.awt.event.ActionEvent evt) {  
+        String username = uname.getText();
+        String password = new String(pass.getPassword());
+        String confirm = new String(conf.getPassword());
+
+        if (validateRegister(username, password, confirm)) {
+            JOptionPane.showMessageDialog(this, "Registration successful!");
+            Login l = new Login();
+            l.setVisible(true);
+            setVisible(false);  // Redirect to login view after successful registration
+        } else {
+            JOptionPane.showMessageDialog(this, "Registration failed.");
+        } 
+    }
+    
     private void logMouseClicked(java.awt.event.MouseEvent evt) {                                      
             Login l = new Login();
             l.setVisible(true);
             setVisible(false);
-    }     
+            //this.dispose();
+    }
+    
     
     public static void main(String[] args) {
         
@@ -46,6 +66,47 @@ public class Register extends javax.swing.JFrame {
         
     }
     
+    private boolean validateRegister(String username, String password, String confirm) {
+        if (username.isEmpty() || password.isEmpty()|| confirm.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "All fields are required.");
+            return false;
+        }
+        
+        if(!password.equals(confirm)){
+            JOptionPane.showMessageDialog(this, "Password does not match.");
+            return false;
+        }
+        
+        Database db = new Database();
+
+        // Check if username already exists in the database
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement("SELECT * FROM users WHERE username = ?")) {
+            pstmt.setString(1, username);
+            try (ResultSet resultSet = pstmt.executeQuery()) {
+                if (resultSet.next()) {
+                    JOptionPane.showMessageDialog(this, "Username already taken.");
+                    return false;
+                }
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error checking username: " + ex.getMessage());
+            return false;
+        }
+
+        // Insert new user into the database
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(
+                "INSERT INTO users (username, password) VALUES (?, ?)")) {
+            pstmt.setString(1, username);
+            pstmt.setString(2, password);
+            pstmt.executeUpdate();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error registering user: " + ex.getMessage());
+            return false;
+        }
+
+        return true;
+    }   
+    
     private void initComponents(){
         title = new JLabel();
         title.setText("HIRAYA");
@@ -67,14 +128,14 @@ public class Register extends javax.swing.JFrame {
         password.setFont(new Font("Serif", Font.PLAIN, 20));
         password.setBounds(100, 125, 200, 50);
         
-        pass = new JTextField();
+        pass = new JPasswordField();
         pass.setBounds(100, 175, 700, 50);
         
         confirm = new JLabel();
         confirm.setText("Confirm Password");
         confirm.setFont(new Font("Serif", Font.PLAIN, 20));
         confirm.setBounds(100, 225, 200, 50);
-        conf = new JTextField();
+        conf = new JPasswordField();
         conf.setBounds(100, 275, 700, 50);
         
         register = new JButton();
@@ -116,6 +177,12 @@ public class Register extends javax.swing.JFrame {
         add(title);
         add(panel1);
         
+        register.addActionListener(new java.awt.event.ActionListener(){
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    registerActionPerformed(evt);
+                } 
+        });
+        
         log.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 logMouseClicked(evt);
@@ -127,9 +194,9 @@ public class Register extends javax.swing.JFrame {
     private JLabel username;
     private JTextField uname;
     private JLabel password;
-    private JTextField pass;
+    private JPasswordField pass;
     private JLabel confirm;
-    private JTextField conf;
+    private JPasswordField conf;
     private JButton register;
     private JLabel log;
     private JPanel panel1;
