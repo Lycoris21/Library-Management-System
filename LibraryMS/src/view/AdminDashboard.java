@@ -2,11 +2,21 @@ package view;
 
 import java.awt.*;
 import javax.swing.*;
+import controller.BookController;
+import controller.UserController;
+import model.Book;
+import model.User;
+import utility.Database;
 
 /**
+ * 
  * @author Christine Ann Dejito
  */
 public class AdminDashboard extends javax.swing.JFrame{
+    
+    Database db = new Database();
+    BookController BC = new BookController(db);
+    UserController UC = new UserController(db);
     
     public AdminDashboard(){
         initComponents();
@@ -95,39 +105,109 @@ public class AdminDashboard extends javax.swing.JFrame{
         nav.add(apps);
         nav.add(username);
         
+        GridLayout gridLayout = new GridLayout(2, 1);
+        gridLayout.setVgap(-120);
         
-        booksl = new JLabel();
-        booksl.setText("BOOKS COUNT");
+        //BOX1
+        booksl = new JLabel("BOOKS COUNT", SwingConstants.CENTER);
         booksl.setFont(new Font("Serif", Font.BOLD, 25));
         booksl.setForeground(Color.WHITE);
         
-        booksc = new JLabel();
-        booksc.setText("21");
+        booksc = new JLabel(""+BC.getBookCount(), SwingConstants.CENTER);
         booksc.setFont(new Font("Serif", Font.BOLD, 40));
         booksc.setForeground(Color.WHITE);
         
         box1 = new JPanel();
         box1.setBackground(new Color(0x00233D));
-        box1.setLayout(new GridLayout(2, 1, 10, 0));
+        box1.setLayout(gridLayout);
         box1.add(booksl);
         box1.add(booksc);
         
+        //BOX2
+        usersl = new JLabel("USERS COUNT", SwingConstants.CENTER);
+        usersl.setFont(new Font("Serif", Font.BOLD, 25));
+        usersl.setForeground(Color.WHITE);
+        
+        usersc = new JLabel(""+UC.getUserCount(), SwingConstants.CENTER);
+        usersc.setFont(new Font("Serif", Font.BOLD, 40));
+        usersc.setForeground(Color.WHITE);
         
         box2 = new JPanel();
         box2.setBackground(new Color(0x00233D));
+        box2.setLayout(gridLayout);
+        box2.add(usersl);
+        box2.add(usersc);
+        
+        
+        //BOX3
+        reservationsl = new JLabel("<html>RESERVATIONS COUNT</html>", SwingConstants.CENTER);
+        reservationsl.setPreferredSize(new Dimension(80, 50));
+        reservationsl.setSize(reservationsl.getPreferredSize());
+        reservationsl.setFont(new Font("Serif", Font.BOLD, 25));
+        reservationsl.setForeground(Color.WHITE);
+        
+        reservationsc = new JLabel(""+BC.getReservationCount(), SwingConstants.CENTER);
+        reservationsc.setFont(new Font("Serif", Font.BOLD, 40));
+        reservationsc.setForeground(Color.WHITE);
         
         box3 = new JPanel();
         box3.setBackground(new Color(0x00233D));
+        box3.setLayout(gridLayout);
+        box3.add(reservationsl);
+        box3.add(reservationsc);
         
+        
+        //BOX4
+        borrowl = new JLabel("<html>CURRENTLY BORROWING COUNT</html>", SwingConstants.CENTER);
+//        borrowl.setPreferredSize(new Dimension(120, 60)); // Set width and height
+//        borrowl.setSize(borrowl.getPreferredSize());
+        borrowl.setFont(new Font("Serif", Font.BOLD, 25));
+        borrowl.setForeground(Color.WHITE);
+        
+        borrowc = new JLabel(""+BC.getCurrentlyBorrowingCount(), SwingConstants.CENTER);
+        borrowc.setFont(new Font("Serif", Font.BOLD, 40));
+        borrowc.setForeground(Color.WHITE);
+  
         box4 = new JPanel();
         box4.setBackground(new Color(0x00233D));
+        box4.setLayout(gridLayout);
+        box4.add(borrowl);
+        box4.add(borrowc);
+        
+        
+        //BOX5
+        overduel = new JLabel("<html>OVERDUE BOOKS COUNT</html>", SwingConstants.CENTER);
+        overduel.setFont(new Font("Serif", Font.BOLD, 25));
+        overduel.setForeground(Color.WHITE);
+        
+        overduec = new JLabel(""+BC.getOverdueCount(), SwingConstants.CENTER);
+        overduec.setFont(new Font("Serif", Font.BOLD, 40));
+        overduec.setForeground(Color.WHITE);
         
         box5 = new JPanel();
         box5.setBackground(new Color(0x00233D));
+        box5.setLayout(gridLayout);
+        box5.add(overduel);
+        box5.add(overduec);
+        
+        
+        //BOX6
+        overduel = new JLabel("<html>TOTAL BORROWED COUNT</html>", SwingConstants.CENTER);
+        overduel.setFont(new Font("Serif", Font.BOLD, 25));
+        overduel.setForeground(Color.WHITE);
+        
+        overduec = new JLabel(""+BC.getTotalCount(), SwingConstants.CENTER);
+        overduec.setFont(new Font("Serif", Font.BOLD, 40));
+        overduec.setForeground(Color.WHITE);
         
         box6 = new JPanel();
         box6.setBackground(new Color(0x00233D));
+        box6.setLayout(gridLayout);
+        box6.add(overduel);
+        box6.add(overduec);
         
+        
+        //BOXES DIV
         div1 = new JPanel();
         div1.setBounds(400, 100, 1020, 570);
         div1.setBackground(null);

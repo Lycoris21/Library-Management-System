@@ -3,6 +3,7 @@ package model;
 import java.sql.Timestamp;
 
 /**
+ * 
  * @author Christine Ann Dejito
  */
 public class User {
@@ -12,6 +13,7 @@ public class User {
     private String role;
     private Timestamp createdAt;
     private Timestamp updatedAt;
+    private int userCount;
     
     public User(int id, String username, String password, String role, Timestamp createdAt, Timestamp updatedAt){
         this.id = id;
@@ -81,6 +83,14 @@ public class User {
                 ", updatedAt=" + updatedAt +
                 ", role='" + role + '\'' +
                 '}';
+    }
+    
+    public int getUserCount(){
+        return userCount;
+    }
+    
+    public void setBookCount(int userCount){
+        this.userCount = userCount;
     }
     
 }

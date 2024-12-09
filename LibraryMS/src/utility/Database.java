@@ -6,6 +6,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**
+ * 
  * @author Christine Ann Dejito
  */
 public class Database {

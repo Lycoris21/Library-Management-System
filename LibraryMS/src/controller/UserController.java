@@ -7,6 +7,7 @@ import model.User;
 import utility.Database;
 
 /**
+ * 
  * @author Christine Ann Dejito
  */
 public class UserController {
@@ -148,5 +149,18 @@ public class UserController {
                 rs.getTimestamp("updated_at")
         );
     }
+    
+    public int getUserCount() {
+        String sql = "SELECT COUNT(user_id) AS user_count FROM users";
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("user_count");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }  
     
 }

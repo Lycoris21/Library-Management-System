@@ -8,6 +8,7 @@ import model.User;
 import utility.Database;
 
 /**
+ * 
  * @author Christine Ann Dejito
  */
 public class Login extends javax.swing.JFrame {
