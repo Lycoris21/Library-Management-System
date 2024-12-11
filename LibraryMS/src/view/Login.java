@@ -12,6 +12,10 @@ import utility.Database;
  * @author Christine Ann Dejito
  */
 public class Login extends javax.swing.JFrame {
+    
+    Database db = new Database();
+    User userM = new User();
+    UserController userC = new UserController(db);
 
     public Login() {
         initComponents();
@@ -25,8 +29,16 @@ public class Login extends javax.swing.JFrame {
         if (validateLogin(username, password)) {
             // Login successful, proceed to main application
             JOptionPane.showMessageDialog(this, "Login successful!");
-            AdminDashboard ad = new AdminDashboard();
-            ad.setVisible(true);
+//            AdminDashboard ad = new AdminDashboard();
+//            LibrarianDashboard ld = new LibrarianDashboard();
+//            ReaderDashboard rd = new ReaderDashboard();
+            if(null == userC.getRole(username)){
+                new ReaderDashboard().setVisible(true);
+            }else switch (userM.getRole()) {
+                case "Admin" -> new AdminDashboard().setVisible(true);
+                case "Librarian" -> new LibrarianDashboard().setVisible(true);
+                default -> new ReaderDashboard().setVisible(true);
+            }
             setVisible(false);
         } else {
             JOptionPane.showMessageDialog(this, "Invalid username or password");

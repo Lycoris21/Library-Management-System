@@ -163,4 +163,20 @@ public class UserController {
         return 0;
     }  
     
+    public String getRole(String username) {
+        Connection connection = db.getConnection();
+        String query = "SELECT role FROM users WHERE username = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, username);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getString("role");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error fetching user role: " + e.getMessage());
+        }
+        return null; // Return null if the user doesn't exist or an error occurred
+    }
+    
 }

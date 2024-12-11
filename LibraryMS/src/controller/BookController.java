@@ -6,6 +6,7 @@ import java.util.List;
 import model.Book;
 import utility.Database;
 
+
 /**
  *
  * @author Christine Ann Dejito
@@ -83,5 +84,54 @@ public class BookController {
         }
         return 0;
     }  
+    
+    public List<Book> getAllBooks() {
+        List<Book> books = new ArrayList<>();
+        String sql = "SELECT book_id, title, author, category, isbn, quantity, created_at, updated_at FROM Books";
+        
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                Book book = new Book();
+                book.setBookId(rs.getInt("book_id"));
+                book.setTitle(rs.getString("title"));
+                book.setAuthor(rs.getString("author"));
+                book.setCategory(rs.getString("category"));
+                book.setIsbn(rs.getString("isbn"));
+                book.setQuantity(rs.getInt("quantity"));
+                book.setCreatedAt(rs.getTimestamp("created_at"));
+                book.setUpdatedAt(rs.getTimestamp("updated_at"));
+                books.add(book);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return books;
+    }
+    
+    public List<Book> getTop10NewBooks() {
+        List<Book> books = new ArrayList<>();
+        String sql = "SELECT * FROM Books ORDER BY created_at DESC LIMIT 10"; // Adjust SQL as per your database schema
+
+        try (Connection conn = db.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                Book book = new Book();
+                book.setBookId(rs.getInt("book_id"));
+                book.setTitle(rs.getString("title"));
+                book.setAuthor(rs.getString("author"));
+                book.setCategory(rs.getString("category"));
+                book.setIsbn(rs.getString("isbn"));
+                book.setQuantity(rs.getInt("quantity"));
+                book.setCreatedAt(rs.getTimestamp("created_at"));
+                book.setUpdatedAt(rs.getTimestamp("updated_at"));
+                books.add(book);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return books;
+    }
     
 }

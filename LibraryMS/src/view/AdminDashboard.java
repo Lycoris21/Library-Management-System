@@ -3,6 +3,7 @@ package view;
 import java.awt.*;
 import javax.swing.*;
 import controller.BookController;
+import controller.BorrowingController;
 import controller.UserController;
 import model.Book;
 import model.User;
@@ -15,12 +16,37 @@ import utility.Database;
 public class AdminDashboard extends javax.swing.JFrame{
     
     Database db = new Database();
-    BookController BC = new BookController(db);
-    UserController UC = new UserController(db);
+    BookController bookC = new BookController(db);
+    BorrowingController borrowC = new BorrowingController(db);
+    UserController userC = new UserController(db);
     
     public AdminDashboard(){
         initComponents();
     }
+    
+    private void homeMouseClicked(java.awt.event.MouseEvent evt) {                                     
+        this.setVisible(true);
+    } 
+    
+    private void bookmMouseClicked(java.awt.event.MouseEvent evt) {                                     
+        AdminBookManagement abm = new AdminBookManagement();
+        abm.setVisible(true);
+        setVisible(false);
+    }
+    
+    private void usermMouseClicked(java.awt.event.MouseEvent evt) {                                     
+        AdminUserManagement asm = new AdminUserManagement();
+        asm.setVisible(true);
+        setVisible(false);
+    } 
+    
+    private void appsMouseClicked(java.awt.event.MouseEvent evt) {                                     
+        AdminDashboard ad = new AdminDashboard();
+        ad.setVisible(true);
+        setVisible(false);
+    } 
+    
+    
     
     public static void main(String[] args) {
         
@@ -62,24 +88,44 @@ public class AdminDashboard extends javax.swing.JFrame{
         home.setBounds(40, 200, 300, 50);
         home.setFont(new Font("Serif", Font.PLAIN, 25));
         home.setForeground(Color.WHITE);
+        home.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                homeMouseClicked(evt);
+            }
+        });
         
         bookm = new JLabel();
         bookm.setText("Book Management");
         bookm.setBounds(40, 260, 300, 50);
         bookm.setFont(new Font("Serif", Font.PLAIN, 25));
         bookm.setForeground(Color.WHITE);
+        bookm.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                bookmMouseClicked(evt);
+            }
+        });
         
         userm = new JLabel();
         userm.setText("User Management");
         userm.setBounds(40, 320, 300, 50);
         userm.setFont(new Font("Serif", Font.PLAIN, 25));
         userm.setForeground(Color.WHITE);
+        userm.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                usermMouseClicked(evt);
+            }
+        });
         
         apps = new JLabel();
         apps.setText("Application Settings");
         apps.setBounds(40, 380, 300, 50);
         apps.setFont(new Font("Serif", Font.PLAIN, 25));
         apps.setForeground(Color.WHITE);
+        apps.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                appsMouseClicked(evt);
+            }
+        });
         
         ImageIcon pp = new ImageIcon("src/images/jingliu.jpg");
         
@@ -113,7 +159,7 @@ public class AdminDashboard extends javax.swing.JFrame{
         booksl.setFont(new Font("Serif", Font.BOLD, 25));
         booksl.setForeground(Color.WHITE);
         
-        booksc = new JLabel(""+BC.getBookCount(), SwingConstants.CENTER);
+        booksc = new JLabel(""+bookC.getBookCount(), SwingConstants.CENTER);
         booksc.setFont(new Font("Serif", Font.BOLD, 40));
         booksc.setForeground(Color.WHITE);
         
@@ -128,7 +174,7 @@ public class AdminDashboard extends javax.swing.JFrame{
         usersl.setFont(new Font("Serif", Font.BOLD, 25));
         usersl.setForeground(Color.WHITE);
         
-        usersc = new JLabel(""+UC.getUserCount(), SwingConstants.CENTER);
+        usersc = new JLabel(""+userC.getUserCount(), SwingConstants.CENTER);
         usersc.setFont(new Font("Serif", Font.BOLD, 40));
         usersc.setForeground(Color.WHITE);
         
@@ -146,7 +192,7 @@ public class AdminDashboard extends javax.swing.JFrame{
         reservationsl.setFont(new Font("Serif", Font.BOLD, 25));
         reservationsl.setForeground(Color.WHITE);
         
-        reservationsc = new JLabel(""+BC.getReservationCount(), SwingConstants.CENTER);
+        reservationsc = new JLabel(""+bookC.getReservationCount(), SwingConstants.CENTER);
         reservationsc.setFont(new Font("Serif", Font.BOLD, 40));
         reservationsc.setForeground(Color.WHITE);
         
@@ -164,7 +210,7 @@ public class AdminDashboard extends javax.swing.JFrame{
         borrowl.setFont(new Font("Serif", Font.BOLD, 25));
         borrowl.setForeground(Color.WHITE);
         
-        borrowc = new JLabel(""+BC.getCurrentlyBorrowingCount(), SwingConstants.CENTER);
+        borrowc = new JLabel(""+bookC.getCurrentlyBorrowingCount(), SwingConstants.CENTER);
         borrowc.setFont(new Font("Serif", Font.BOLD, 40));
         borrowc.setForeground(Color.WHITE);
   
@@ -180,7 +226,7 @@ public class AdminDashboard extends javax.swing.JFrame{
         overduel.setFont(new Font("Serif", Font.BOLD, 25));
         overduel.setForeground(Color.WHITE);
         
-        overduec = new JLabel(""+BC.getOverdueCount(), SwingConstants.CENTER);
+        overduec = new JLabel(""+bookC.getOverdueCount(), SwingConstants.CENTER);
         overduec.setFont(new Font("Serif", Font.BOLD, 40));
         overduec.setForeground(Color.WHITE);
         
@@ -192,19 +238,19 @@ public class AdminDashboard extends javax.swing.JFrame{
         
         
         //BOX6
-        overduel = new JLabel("<html>TOTAL BORROWED COUNT</html>", SwingConstants.CENTER);
-        overduel.setFont(new Font("Serif", Font.BOLD, 25));
-        overduel.setForeground(Color.WHITE);
+        totalbl = new JLabel("<html>TOTAL BORROWED COUNT</html>", SwingConstants.CENTER);
+        totalbl.setFont(new Font("Serif", Font.BOLD, 25));
+        totalbl.setForeground(Color.WHITE);
         
-        overduec = new JLabel(""+BC.getTotalCount(), SwingConstants.CENTER);
-        overduec.setFont(new Font("Serif", Font.BOLD, 40));
-        overduec.setForeground(Color.WHITE);
+        totalbc = new JLabel(""+bookC.getTotalCount(), SwingConstants.CENTER);
+        totalbc.setFont(new Font("Serif", Font.BOLD, 40));
+        totalbc.setForeground(Color.WHITE);
         
         box6 = new JPanel();
         box6.setBackground(new Color(0x00233D));
         box6.setLayout(gridLayout);
-        box6.add(overduel);
-        box6.add(overduec);
+        box6.add(totalbl);
+        box6.add(totalbc);
         
         
         //BOXES DIV
