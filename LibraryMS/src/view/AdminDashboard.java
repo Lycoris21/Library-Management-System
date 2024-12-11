@@ -40,9 +40,9 @@ public class AdminDashboard extends javax.swing.JFrame{
         setVisible(false);
     } 
     
-    private void appsMouseClicked(java.awt.event.MouseEvent evt) {                                     
-        AdminDashboard ad = new AdminDashboard();
-        ad.setVisible(true);
+    private void recordsMouseClicked(java.awt.event.MouseEvent evt) {                                     
+        AdminRecords ar = new AdminRecords();
+        ar.setVisible(true);
         setVisible(false);
     } 
     
@@ -116,14 +116,14 @@ public class AdminDashboard extends javax.swing.JFrame{
             }
         });
         
-        apps = new JLabel();
-        apps.setText("Application Settings");
-        apps.setBounds(40, 380, 300, 50);
-        apps.setFont(new Font("Serif", Font.PLAIN, 25));
-        apps.setForeground(Color.WHITE);
-        apps.addMouseListener(new java.awt.event.MouseAdapter() {
+        records = new JLabel();
+        records.setText("Records");
+        records.setBounds(40, 380, 300, 50);
+        records.setFont(new Font("Serif", Font.PLAIN, 25));
+        records.setForeground(Color.WHITE);
+        records.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                appsMouseClicked(evt);
+                recordsMouseClicked(evt);
             }
         });
         
@@ -148,7 +148,7 @@ public class AdminDashboard extends javax.swing.JFrame{
         nav.add(home);
         nav.add(bookm);
         nav.add(userm);
-        nav.add(apps);
+        nav.add(records);
         nav.add(username);
         
         GridLayout gridLayout = new GridLayout(2, 1);
@@ -291,7 +291,7 @@ public class AdminDashboard extends javax.swing.JFrame{
     private javax.swing.JLabel home;
     private javax.swing.JLabel bookm;
     private javax.swing.JLabel userm;
-    private javax.swing.JLabel apps;
+    private javax.swing.JLabel records;
     private javax.swing.JLabel username;
     
     

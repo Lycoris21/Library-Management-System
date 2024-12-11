@@ -23,6 +23,18 @@ public class Book {
     private Date createdAt;
     private Date updatedAt;
     
+    public Book(){
+        
+    }
+    
+    public Book(String title, String author, String category, String isbn, int quantity) {
+        this.title = title;
+        this.author = author;
+        this.category = category;
+        this.isbn = isbn;
+        this.quantity = quantity;
+    }
+    
     public int getBookCount(){
         return bookCount;
     }

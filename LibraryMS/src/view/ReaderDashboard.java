@@ -21,6 +21,28 @@ public class ReaderDashboard extends JFrame {
         initComponents();
     }
     
+    private void homeMouseClicked(java.awt.event.MouseEvent evt) {                                     
+        setVisible(true);
+    } 
+    
+    private void browseMouseClicked(java.awt.event.MouseEvent evt) {                                     
+        ReaderBrowse rb = new ReaderBrowse();
+        rb.setVisible(true);
+        setVisible(false);
+    }
+    
+    private void borrowhMouseClicked(java.awt.event.MouseEvent evt) {                                     
+        ReaderBorrowHistory rbh = new ReaderBorrowHistory();
+        rbh.setVisible(true);
+        setVisible(false);
+    } 
+    
+    private void profileMouseClicked(java.awt.event.MouseEvent evt) {                                     
+        ReaderProfile rp = new ReaderProfile();
+        rp.setVisible(true);
+        setVisible(false);
+    }
+    
     public static void main(String[] args) {
         
         try {
@@ -61,24 +83,44 @@ public class ReaderDashboard extends JFrame {
         home.setBounds(40, 200, 300, 50);
         home.setFont(new Font("Serif", Font.PLAIN, 25));
         home.setForeground(Color.WHITE);
+        home.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                homeMouseClicked(evt);
+            }
+        });
         
-        bookm = new JLabel();
-        bookm.setText("Browse Books");
-        bookm.setBounds(40, 260, 300, 50);
-        bookm.setFont(new Font("Serif", Font.PLAIN, 25));
-        bookm.setForeground(Color.WHITE);
+        browse = new JLabel();
+        browse.setText("Browse Books");
+        browse.setBounds(40, 260, 300, 50);
+        browse.setFont(new Font("Serif", Font.PLAIN, 25));
+        browse.setForeground(Color.WHITE);
+        browse.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                browseMouseClicked(evt);
+            }
+        });
         
-        userm = new JLabel();
-        userm.setText("Borrow History");
-        userm.setBounds(40, 320, 300, 50);
-        userm.setFont(new Font("Serif", Font.PLAIN, 25));
-        userm.setForeground(Color.WHITE);
+        borrowh = new JLabel();
+        borrowh.setText("Borrow History");
+        borrowh.setBounds(40, 320, 300, 50);
+        borrowh.setFont(new Font("Serif", Font.PLAIN, 25));
+        borrowh.setForeground(Color.WHITE);
+        borrowh.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                borrowhMouseClicked(evt);
+            }
+        });
         
-        apps = new JLabel();
-        apps.setText("Profile Page");
-        apps.setBounds(40, 380, 300, 50);
-        apps.setFont(new Font("Serif", Font.PLAIN, 25));
-        apps.setForeground(Color.WHITE);
+        profile = new JLabel();
+        profile.setText("Profile Page");
+        profile.setBounds(40, 380, 300, 50);
+        profile.setFont(new Font("Serif", Font.PLAIN, 25));
+        profile.setForeground(Color.WHITE);
+        profile.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                profileMouseClicked(evt);
+            }
+        });
         
         ImageIcon pp = new ImageIcon("src/images/jingliu.jpg");
         
@@ -99,10 +141,11 @@ public class ReaderDashboard extends JFrame {
         
         nav.add(dash);
         nav.add(home);
-        nav.add(bookm);
-        nav.add(userm);
-        nav.add(apps);
+        nav.add(browse);
+        nav.add(borrowh);
+        nav.add(profile);
         nav.add(username);
+        
         
         
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -120,9 +163,9 @@ public class ReaderDashboard extends JFrame {
     private javax.swing.JPanel nav;
     private javax.swing.JLabel dash;
     private javax.swing.JLabel home;
-    private javax.swing.JLabel bookm;
-    private javax.swing.JLabel userm;
-    private javax.swing.JLabel apps;
+    private javax.swing.JLabel browse;
+    private javax.swing.JLabel borrowh;
+    private javax.swing.JLabel profile;
     private javax.swing.JLabel username;
     
     

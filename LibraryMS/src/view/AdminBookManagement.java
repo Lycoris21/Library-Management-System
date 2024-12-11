@@ -1,11 +1,21 @@
 package view;
 
+import controller.BookController;
+import controller.BorrowingController;
+import controller.UserController;
 import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
+import model.Book;
+import utility.Database;
 
 public class AdminBookManagement extends JFrame {
 
+    Database db = new Database();
+    BookController bookC = new BookController(db);
+    BorrowingController borrowC = new BorrowingController(db);
+    UserController userC = new UserController(db);
+    
     public AdminBookManagement() {
         initComponents();
     }
@@ -28,11 +38,28 @@ public class AdminBookManagement extends JFrame {
         setVisible(false);
     } 
     
-    private void appsMouseClicked(java.awt.event.MouseEvent evt) {                                     
-        AdminDashboard ad = new AdminDashboard();
-        ad.setVisible(true);
+    private void recordsMouseClicked(java.awt.event.MouseEvent evt) {                                     
+        AdminRecords ar = new AdminRecords();
+        ar.setVisible(true);
         setVisible(false);
     } 
+    
+    private void addBookButtonActionPerformed(java.awt.event.ActionEvent evt) {  
+        AddBookModal addBookDialog;
+        addBookDialog = new AddBookModal(this, true);
+        addBookDialog.setVisible(true);
+
+        if (addBookDialog.isSaved()) {
+            Book book = addBookDialog.getBook();
+            boolean isInserted = bookC.addBook(book);
+
+            if (isInserted) {
+                JOptionPane.showMessageDialog(this, "Book added successfully!");
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to add book!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
 
     public static void main(String[] args) {
         new AdminBookManagement().setVisible(true);
@@ -76,14 +103,14 @@ public class AdminBookManagement extends JFrame {
             }
         });
         
-        apps = new JLabel();
-        apps.setText("Application Settings");
-        apps.setBounds(40, 380, 300, 50);
-        apps.setFont(new Font("Serif", Font.PLAIN, 25));
-        apps.setForeground(Color.WHITE);
-        apps.addMouseListener(new java.awt.event.MouseAdapter() {
+        records = new JLabel();
+        records.setText("Records");
+        records.setBounds(40, 380, 300, 50);
+        records.setFont(new Font("Serif", Font.PLAIN, 25));
+        records.setForeground(Color.WHITE);
+        records.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                appsMouseClicked(evt);
+                recordsMouseClicked(evt);
             }
         });
         
@@ -108,32 +135,37 @@ public class AdminBookManagement extends JFrame {
         nav.add(home);
         nav.add(bookm);
         nav.add(userm);
-        nav.add(apps);
+        nav.add(records);
         nav.add(username);
     
         // Search Label and TextField
         searchLabel = new JLabel("Search");
         searchLabel.setFont(new Font("Serif", Font.PLAIN, 20));
-        searchLabel.setBounds(350, 67, 100, 30);
+        searchLabel.setBounds(400, 67, 100, 30);
     
         searchField = new JTextField();
-        searchField.setBounds(420, 70, 500, 30);
+        searchField.setBounds(470, 70, 500, 30);
     
         // Filter and Add Book Buttons
         filterButton = new JButton("Filter");
-        filterButton.setBounds(940, 70, 100, 30);
+        filterButton.setBounds(990, 70, 100, 30);
         filterButton.setForeground(Color.WHITE);
         filterButton.setBackground(new Color(0x316FA2));
         
         addBookButton = new JButton("Add Book");
-        addBookButton.setBounds(1060, 70, 100, 30);
+        addBookButton.setBounds(1110, 70, 100, 30);
         addBookButton.setForeground(Color.WHITE);
         addBookButton.setBackground(new Color(0x316FA2));
+        addBookButton.addActionListener(new java.awt.event.ActionListener(){
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    addBookButtonActionPerformed(evt);
+                } 
+        });
     
         // Books Label
         booksLabel = new JLabel("Books");
         booksLabel.setFont(new Font("Serif", Font.BOLD, 30));
-        booksLabel.setBounds(350, 120, 200, 30);
+        booksLabel.setBounds(400, 120, 200, 30);
     
         // Table with Headers
         String[] columns = {"ID", "Title", "Author", "Category", "ISBN", "Quantity", "Action"};
@@ -170,7 +202,7 @@ public class AdminBookManagement extends JFrame {
     
         // Scroll pane for table
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBounds(350, 160, 1000, 600);
+        scrollPane.setBounds(400, 160, 1000, 600);
     
         // Add components to frame
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -258,7 +290,7 @@ public class AdminBookManagement extends JFrame {
     private javax.swing.JLabel home;
     private javax.swing.JLabel bookm;
     private javax.swing.JLabel userm;
-    private javax.swing.JLabel apps;
+    private javax.swing.JLabel records;
     private javax.swing.JLabel username;
     private javax.swing.JLabel searchLabel;
     private javax.swing.JTextField searchField;

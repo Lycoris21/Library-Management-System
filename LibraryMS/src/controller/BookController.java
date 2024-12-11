@@ -109,29 +109,25 @@ public class BookController {
         return books;
     }
     
-    public List<Book> getTop10NewBooks() {
-        List<Book> books = new ArrayList<>();
-        String sql = "SELECT * FROM Books ORDER BY created_at DESC LIMIT 10"; // Adjust SQL as per your database schema
-
+    public boolean addBook(Book book) {
+        String query = "INSERT INTO books (title, author, category, isbn, quantity) VALUES (?, ?, ?, ?, ?)";
+        
         try (Connection conn = db.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-            while (rs.next()) {
-                Book book = new Book();
-                book.setBookId(rs.getInt("book_id"));
-                book.setTitle(rs.getString("title"));
-                book.setAuthor(rs.getString("author"));
-                book.setCategory(rs.getString("category"));
-                book.setIsbn(rs.getString("isbn"));
-                book.setQuantity(rs.getInt("quantity"));
-                book.setCreatedAt(rs.getTimestamp("created_at"));
-                book.setUpdatedAt(rs.getTimestamp("updated_at"));
-                books.add(book);
-            }
+             PreparedStatement preparedStatement = conn.prepareStatement(query)) {
+
+            preparedStatement.setString(1, book.getTitle());
+            preparedStatement.setString(2, book.getAuthor());
+            preparedStatement.setString(3, book.getCategory());
+            preparedStatement.setString(4, book.getIsbn());
+            preparedStatement.setInt(5, book.getQuantity());
+
+            int rowsAffected = preparedStatement.executeUpdate();
+            return rowsAffected > 0;
+
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
-        return books;
     }
     
 }

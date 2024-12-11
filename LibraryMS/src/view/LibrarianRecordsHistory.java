@@ -40,7 +40,7 @@ public class LibrarianRecordsHistory extends JFrame {
     } 
     
     private void thistoryMouseClicked(java.awt.event.MouseEvent evt) {                                     
-        setVisible(false);
+        setVisible(true);
     } 
     
     public static void main(String[] args) {
