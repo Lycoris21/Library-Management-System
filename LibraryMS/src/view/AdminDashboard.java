@@ -25,7 +25,7 @@ public class AdminDashboard extends javax.swing.JFrame{
     }
     
     private void homeMouseClicked(java.awt.event.MouseEvent evt) {                                     
-        this.setVisible(true);
+        setVisible(true);
     } 
     
     private void bookmMouseClicked(java.awt.event.MouseEvent evt) {                                     

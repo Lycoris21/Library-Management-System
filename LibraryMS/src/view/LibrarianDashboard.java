@@ -22,24 +22,24 @@ public class LibrarianDashboard extends JFrame {
     }
     
     private void homeMouseClicked(java.awt.event.MouseEvent evt) {                                     
-        this.setVisible(true);
+        setVisible(true);
     } 
     
     private void blistingsMouseClicked(java.awt.event.MouseEvent evt) {                                     
-        AdminBookManagement abm = new AdminBookManagement();
-        abm.setVisible(true);
+        LibrarianBookListings lbl = new LibrarianBookListings();
+        lbl.setVisible(true);
         setVisible(false);
     }
     
     private void opsmMouseClicked(java.awt.event.MouseEvent evt) {                                     
-        AdminUserManagement asm = new AdminUserManagement();
-        asm.setVisible(true);
+        LibrarianOperationsManagement lom = new LibrarianOperationsManagement();
+        lom.setVisible(true);
         setVisible(false);
     } 
     
-    private void rhistoryMouseClicked(java.awt.event.MouseEvent evt) {                                     
-        AdminDashboard ad = new AdminDashboard();
-        ad.setVisible(true);
+    private void thistoryMouseClicked(java.awt.event.MouseEvent evt) {                                     
+        LibrarianRecordsHistory lrh = new LibrarianRecordsHistory();
+        lrh.setVisible(true);
         setVisible(false);
     } 
     
@@ -90,7 +90,7 @@ public class LibrarianDashboard extends JFrame {
         });
         
         blistings = new JLabel();
-        blistings.setText("Browse Books");
+        blistings.setText("Book Listings");
         blistings.setBounds(40, 260, 300, 50);
         blistings.setFont(new Font("Serif", Font.PLAIN, 25));
         blistings.setForeground(Color.WHITE);
@@ -101,7 +101,7 @@ public class LibrarianDashboard extends JFrame {
         });
         
         opsm = new JLabel();
-        opsm.setText("Borrow History");
+        opsm.setText("Operations Management");
         opsm.setBounds(40, 320, 300, 50);
         opsm.setFont(new Font("Serif", Font.PLAIN, 25));
         opsm.setForeground(Color.WHITE);
@@ -111,14 +111,14 @@ public class LibrarianDashboard extends JFrame {
             }
         });
         
-        rhistory = new JLabel();
-        rhistory.setText("Profile Page");
-        rhistory.setBounds(40, 380, 300, 50);
-        rhistory.setFont(new Font("Serif", Font.PLAIN, 25));
-        rhistory.setForeground(Color.WHITE);
-        rhistory.addMouseListener(new java.awt.event.MouseAdapter() {
+        thistory = new JLabel();
+        thistory.setText("Transaction History");
+        thistory.setBounds(40, 380, 300, 50);
+        thistory.setFont(new Font("Serif", Font.PLAIN, 25));
+        thistory.setForeground(Color.WHITE);
+        thistory.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                rhistoryMouseClicked(evt);
+                thistoryMouseClicked(evt);
             }
         });
         
@@ -143,7 +143,7 @@ public class LibrarianDashboard extends JFrame {
         nav.add(home);
         nav.add(blistings);
         nav.add(opsm);
-        nav.add(rhistory);
+        nav.add(thistory);
         nav.add(username);
         
         
@@ -164,11 +164,7 @@ public class LibrarianDashboard extends JFrame {
     private javax.swing.JLabel home;
     private javax.swing.JLabel blistings;
     private javax.swing.JLabel opsm;
-    private javax.swing.JLabel rhistory;
+    private javax.swing.JLabel thistory;
     private javax.swing.JLabel username;
-    
-    
-
-    
     
 }

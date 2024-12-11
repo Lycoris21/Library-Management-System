@@ -10,14 +10,14 @@ import model.Book;
 import model.Borrowing;
 import utility.Database;
 
-public class LibrarianBookListings extends JFrame {
+public class LibrarianOperationsManagement extends JFrame {
 
     Database db = new Database();
     BookController bookC = new BookController(db);
     BorrowingController borrowC = new BorrowingController(db);
     UserController userC = new UserController(db);
     
-    public LibrarianBookListings(){
+    public LibrarianOperationsManagement(){
         initComponents();
     }
     
@@ -28,13 +28,13 @@ public class LibrarianBookListings extends JFrame {
     } 
     
     private void blistingsMouseClicked(java.awt.event.MouseEvent evt) {                                     
-        setVisible(true);
+        LibrarianBookListings lbl = new LibrarianBookListings();
+        lbl.setVisible(true);
+        setVisible(false);
     }
     
     private void opsmMouseClicked(java.awt.event.MouseEvent evt) {                                     
-        LibrarianOperationsManagement lom = new LibrarianOperationsManagement();
-        lom.setVisible(true);
-        setVisible(false);
+        setVisible(true);
     } 
     
     private void thistoryMouseClicked(java.awt.event.MouseEvent evt) {                                     
@@ -64,7 +64,7 @@ public class LibrarianBookListings extends JFrame {
 
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new LibrarianBookListings().setVisible(true);
+                new LibrarianOperationsManagement().setVisible(true);
             }
         });
         
