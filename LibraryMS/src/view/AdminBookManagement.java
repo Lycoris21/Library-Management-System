@@ -190,10 +190,6 @@ public class AdminBookManagement extends JFrame {
             }
         };
 
-        // Add sample data
-        model.addRow(new Object[]{1, "The Hobbit", "J.R.R. Tolkien", "Fantasy", "978-0-261-10221-7", 10, ""});
-        model.addRow(new Object[]{2, "1984", "George Orwell", "Dystopian", "978-0-452-28423-4", 5, ""});
-
         table = new JTable(model); // Initialize table here
         table.setRowHeight(40);
         
@@ -360,10 +356,18 @@ public class AdminBookManagement extends JFrame {
 
             private void handleDeleteAction() {
                 int row = table.getSelectedRow();
-                int bookId = (int) table.getValueAt(row, 0);
-                Book book = bookC.getBookById(bookId);
-                showDeleteConfirmation(book);
-                fireEditingStopped();
+                if (row >= 0) {
+                    int bookId = (int) table.getValueAt(row, 0);
+                    Book book = bookC.getBookById(bookId);
+                    
+                    showDeleteConfirmation(book);
+
+                    // Ensure the table model is updated correctly before stopping the editing
+                    DefaultTableModel model = (DefaultTableModel) table.getModel();
+                    model.removeRow(row);
+                    
+                    fireEditingStopped();
+                }
             }
 
             @Override
@@ -375,6 +379,5 @@ public class AdminBookManagement extends JFrame {
             public Object getCellEditorValue() {
                 return null;
             }
-
         }
 }

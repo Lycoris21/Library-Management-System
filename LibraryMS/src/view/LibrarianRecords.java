@@ -10,14 +10,14 @@ import model.Book;
 import model.Borrowing;
 import utility.Database;
 
-public class LibrarianRecordsHistory extends JFrame {
+public class LibrarianRecords extends JFrame {
 
     Database db = new Database();
     BookController bookC = new BookController(db);
     BorrowingController borrowC = new BorrowingController(db);
     UserController userC = new UserController(db);
     
-    public LibrarianRecordsHistory(){
+    public LibrarianRecords(){
         initComponents();
     }
     
@@ -64,7 +64,7 @@ public class LibrarianRecordsHistory extends JFrame {
 
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new LibrarianRecordsHistory().setVisible(true);
+                new LibrarianRecords().setVisible(true);
             }
         });
         

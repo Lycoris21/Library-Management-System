@@ -179,6 +179,24 @@ public class UserController {
         System.err.println("Error fetching user role: " + e.getMessage());
     }
     return null; // Return null if no role is found or an error occurs
-}
+    }
+    
+    public List<User> searchUsers(String query) {
+    List<User> users = new ArrayList<>();
+    String sql = "SELECT * FROM users WHERE username LIKE ? OR role LIKE ?";
+    try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql)) {
+        String searchQuery = "%" + query + "%";
+        pstmt.setString(1, searchQuery);
+        pstmt.setString(2, searchQuery);
+        try (ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                users.add(mapResultSetToUser(rs));
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return users;
+    }
     
 }

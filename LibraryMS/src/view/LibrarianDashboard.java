@@ -38,7 +38,7 @@ public class LibrarianDashboard extends JFrame {
     } 
     
     private void thistoryMouseClicked(java.awt.event.MouseEvent evt) {                                     
-        LibrarianRecordsHistory lrh = new LibrarianRecordsHistory();
+        LibrarianRecords lrh = new LibrarianRecords();
         lrh.setVisible(true);
         setVisible(false);
     } 

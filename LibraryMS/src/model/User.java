@@ -14,6 +14,9 @@ public class User {
     private Timestamp createdAt;
     private Timestamp updatedAt;
     private int userCount;
+    private int currentlyBorrowingCount;
+    private int overdueCount;
+    private int totalCount;
     
     public User(int id, String username, String password, String role, Timestamp createdAt, Timestamp updatedAt){
         this.id = id;
@@ -25,6 +28,12 @@ public class User {
     }
     
     public User() {}
+    
+    public User(String username, String password, String role){
+        this.username = username;
+        this.password = password;
+        this.role = role;
+    }
     
     public int getId(){
         return id;
@@ -91,6 +100,30 @@ public class User {
     
     public void setBookCount(int userCount){
         this.userCount = userCount;
+    }
+    
+    public int getCurrentlyBorrowingCount() {
+        return currentlyBorrowingCount;
+    }
+
+    public void setCurrentlyBorrowingCount(int currentlyBorrowingCount) {
+        this.currentlyBorrowingCount = currentlyBorrowingCount;
+    }
+
+    public int getOverdueCount() {
+        return overdueCount;
+    }
+
+    public void setOverdueCount(int overdueCount) {
+        this.overdueCount = overdueCount;
+    }
+
+    public int getTotalCount() {
+        return totalCount;
+    }
+
+    public void setTotalCount(int totalCount) {
+        this.totalCount = totalCount;
     }
     
 }
