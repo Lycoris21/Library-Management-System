@@ -181,4 +181,33 @@ public class BookController {
         return false;
     }
     
+    public List<Book> searchBooks(String query) {
+    List<Book> books = new ArrayList<>();
+    String sql = "SELECT book_id, title, author, category, isbn, quantity, created_at, updated_at FROM books WHERE title LIKE ? OR author LIKE ? OR category LIKE ? OR isbn LIKE ?";
+    try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql)) {
+        String searchQuery = "%" + query + "%";
+        pstmt.setString(1, searchQuery);
+        pstmt.setString(2, searchQuery);
+        pstmt.setString(3, searchQuery);
+        pstmt.setString(4, searchQuery);
+        try (ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                Book book = new Book();
+                book.setBookId(rs.getInt("book_id"));
+                book.setTitle(rs.getString("title"));
+                book.setAuthor(rs.getString("author"));
+                book.setCategory(rs.getString("category"));
+                book.setIsbn(rs.getString("isbn"));
+                book.setQuantity(rs.getInt("quantity"));
+                book.setCreatedAt(rs.getTimestamp("created_at"));
+                book.setUpdatedAt(rs.getTimestamp("updated_at"));
+                books.add(book);
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return books;
+}
+    
 }

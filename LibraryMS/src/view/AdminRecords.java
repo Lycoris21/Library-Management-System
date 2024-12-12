@@ -117,11 +117,11 @@ public class AdminRecords extends JFrame {
         searchField = new JTextField();
         searchField.setBounds(470, 70, 500, 30);
     
-        // Filter and Add Book Buttons
-        filterButton = new JButton("Filter");
-        filterButton.setBounds(990, 70, 100, 30);
-        filterButton.setForeground(Color.WHITE);
-        filterButton.setBackground(new Color(0x316FA2));
+        // Search and Add Book Buttons
+        searchButton = new JButton("Search");
+        searchButton.setBounds(990, 70, 100, 30);
+        searchButton.setForeground(Color.WHITE);
+        searchButton.setBackground(new Color(0x316FA2));
         
         addBookButton = new JButton("Add Book");
         addBookButton.setBounds(1110, 70, 100, 30);
@@ -177,7 +177,7 @@ public class AdminRecords extends JFrame {
         add(nav);
         add(searchLabel);
         add(searchField);
-        add(filterButton);
+        add(searchButton);
         add(addBookButton);
         add(booksLabel);
         add(scrollPane);
@@ -260,7 +260,7 @@ public class AdminRecords extends JFrame {
     private javax.swing.JLabel username;
     private javax.swing.JLabel searchLabel;
     private javax.swing.JTextField searchField;
-    private javax.swing.JButton filterButton;
+    private javax.swing.JButton searchButton;
     private javax.swing.JButton addBookButton;
     private javax.swing.JLabel booksLabel;
 }

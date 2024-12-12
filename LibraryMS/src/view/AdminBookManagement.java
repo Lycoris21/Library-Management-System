@@ -45,6 +45,12 @@ public class AdminBookManagement extends JFrame {
         ar.setVisible(true);
         setVisible(false);
     } 
+    
+    private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {
+        String query = searchField.getText().trim();
+        List<Book> filteredBooks = bookC.searchBooks(query);
+        populateTable(filteredBooks);
+    }
 
     private void addBookButtonActionPerformed(java.awt.event.ActionEvent evt) {  
         AddBookModal addBookDialog;
@@ -154,6 +160,11 @@ public class AdminBookManagement extends JFrame {
         searchButton.setBounds(990, 70, 100, 30);
         searchButton.setForeground(Color.WHITE);
         searchButton.setBackground(new Color(0x316FA2));
+        searchButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                searchButtonActionPerformed(evt);
+            }
+        });
 
         addBookButton = new JButton("Add Book");
         addBookButton.setBounds(1110, 70, 100, 30);
@@ -240,6 +251,10 @@ public class AdminBookManagement extends JFrame {
 
         private void populateTable() {
             List<Book> books = bookC.getAllBooks();
+            populateTable(books);
+        }
+
+        private void populateTable(List<Book> books) {
             DefaultTableModel model = (DefaultTableModel) table.getModel();
             model.setRowCount(0); // Clear existing data
 
