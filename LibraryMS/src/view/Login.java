@@ -6,6 +6,8 @@ import controller.UserController;
 import java.awt.*;
 import model.User;
 import utility.Database;
+import view.AdminDashboard;
+import view.ReaderDashboard;
 
 /**
  * 
@@ -22,28 +24,28 @@ public class Login extends javax.swing.JFrame {
     }
     
     private void loginActionPerformed(java.awt.event.ActionEvent evt) {  
-        // TODO add your handling code here: 
-        String username = uname.getText();
-        String password = pass.getText();
+    // TODO add your handling code here: 
+    String username = uname.getText();
+    String password = pass.getText();
 
-        if (validateLogin(username, password)) {
-            // Login successful, proceed to main application
-            JOptionPane.showMessageDialog(this, "Login successful!");
-//            AdminDashboard ad = new AdminDashboard();
-//            LibrarianDashboard ld = new LibrarianDashboard();
-//            ReaderDashboard rd = new ReaderDashboard();
-            if(null == userC.getRole(username)){
-                new ReaderDashboard().setVisible(true);
-            }else switch (userM.getRole()) {
-                case "Admin" -> new AdminDashboard().setVisible(true);
-                case "Librarian" -> new LibrarianDashboard().setVisible(true);
+    if (validateLogin(username, password)) {
+        // Login successful, proceed to main application
+        JOptionPane.showMessageDialog(this, "Login successful!");
+        String role = userC.getRole(username);
+        if (role == null) {
+            new ReaderDashboard().setVisible(true);
+        } else {
+            switch (role.toLowerCase()) {
+                case "admin" -> new AdminDashboard().setVisible(true);
+                case "librarian" -> new LibrarianDashboard().setVisible(true);
                 default -> new ReaderDashboard().setVisible(true);
             }
-            setVisible(false);
-        } else {
-            JOptionPane.showMessageDialog(this, "Invalid username or password");
-        }      
-    }
+        }
+        setVisible(false);
+    } else {
+        JOptionPane.showMessageDialog(this, "Invalid username or password");
+    }      
+}
     
     private void regMouseClicked(java.awt.event.MouseEvent evt) {                                      
             Register r = new Register();

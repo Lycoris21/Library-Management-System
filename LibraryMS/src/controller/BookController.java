@@ -130,4 +130,55 @@ public class BookController {
         }
     }
     
+    public Book getBookById(int bookId) {
+        String sql = "SELECT book_id, title, author, category, isbn, quantity, created_at, updated_at FROM books WHERE book_id = ?";
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql)) {
+            pstmt.setInt(1, bookId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    Book book = new Book();
+                    book.setBookId(rs.getInt("book_id"));
+                    book.setTitle(rs.getString("title"));
+                    book.setAuthor(rs.getString("author"));
+                    book.setCategory(rs.getString("category"));
+                    book.setIsbn(rs.getString("isbn"));
+                    book.setQuantity(rs.getInt("quantity"));
+                    book.setCreatedAt(rs.getTimestamp("created_at"));
+                    book.setUpdatedAt(rs.getTimestamp("updated_at"));
+                    return book;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public boolean updateBook(Book book) {
+        String sql = "UPDATE books SET title = ?, author = ?, category = ?, isbn = ?, quantity = ?, updated_at = CURRENT_TIMESTAMP WHERE book_id = ?";
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql)) {
+            pstmt.setString(1, book.getTitle());
+            pstmt.setString(2, book.getAuthor());
+            pstmt.setString(3, book.getCategory());
+            pstmt.setString(4, book.getIsbn());
+            pstmt.setInt(5, book.getQuantity());
+            pstmt.setInt(6, book.getBookId());
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean deleteBook(int bookId) {
+        String sql = "DELETE FROM books WHERE book_id = ?";
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql)) {
+            pstmt.setInt(1, bookId);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
 }

@@ -164,19 +164,21 @@ public class UserController {
     }  
     
     public String getRole(String username) {
-        Connection connection = db.getConnection();
-        String query = "SELECT role FROM users WHERE username = ?";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setString(1, username);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    return resultSet.getString("role");
-                }
+    String query = "SELECT role FROM users WHERE username = ?";
+    try (Connection connection = db.getConnection();
+         PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        preparedStatement.setString(1, username);
+        try (ResultSet resultSet = preparedStatement.executeQuery()) {
+            if (resultSet.next()) {
+                return resultSet.getString("role");
+            } else {
+                System.out.println("No role found for user: " + username);
             }
-        } catch (SQLException e) {
-            System.err.println("Error fetching user role: " + e.getMessage());
         }
-        return null; // Return null if the user doesn't exist or an error occurred
+    } catch (SQLException e) {
+        System.err.println("Error fetching user role: " + e.getMessage());
     }
+    return null; // Return null if no role is found or an error occurs
+}
     
 }
