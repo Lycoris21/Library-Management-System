@@ -226,8 +226,13 @@ public class AdminBookManagement extends JFrame {
 
         // Add components to frame
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1535, 820);
+        setSize(1535,820);
+        setResizable(false);
+        getContentPane().setBackground(Color.WHITE);
+        setTitle("Library Management System");
         setLayout(null);
+        setVisible(true);
+        
         add(nav);
         add(searchLabel);
         add(searchField);

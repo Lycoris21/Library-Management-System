@@ -209,7 +209,7 @@ public class LibrarianDashboard extends JFrame {
         
         add(nav);
         add(counts);
-        add(top10);
+        //add(top10);
     }
     
     private javax.swing.JPanel nav;
