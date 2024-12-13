@@ -134,11 +134,11 @@ public class AdminRecords extends JFrame {
         booksLabel.setBounds(400, 120, 200, 30);
     
         // Table with Headers
-        String[] columns = {"History_ID", "Borrow_ID", "User_ID", "Book_ID", "Borrow Date", "Return Date", "Actual Return Date", "Status", "Action"};
+        String[] columns = {"Username", "Title", "Status", "Last Updated", "More Details", "Action"};
         DefaultTableModel model = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 8;
+                return column == 5;
             }
         };
     
@@ -157,8 +157,8 @@ public class AdminRecords extends JFrame {
         }
         
         // Apply the ButtonRenderer and ButtonEditor to the "Action" column (index 6)
-        table.getColumnModel().getColumn(8).setCellRenderer(new ButtonRenderer());
-        table.getColumnModel().getColumn(8).setCellEditor(new ButtonEditor(nav));
+        table.getColumnModel().getColumn(5).setCellRenderer(new ButtonRenderer());
+        table.getColumnModel().getColumn(5).setCellEditor(new ButtonEditor(nav));
         
         // Table header customization
         JTableHeader header = table.getTableHeader();

@@ -1,107 +1,46 @@
 package controller;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import model.Book;
+import java.util.*;
 import utility.Database;
+import model.Book;
 
 
-/**
- *
- * @author Christine Ann Dejito
- */
-public class BookController {
+public class BookController{
     
-    private Database db;
+    private final Database db;
 
-    // Constructor to initialize the database connection
     public BookController(Database db) {
         this.db = db;
     }
     
-    public int getBookCount() {
-        String sql = "SELECT COUNT(book_id) AS book_count FROM books";
-        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-            if (rs.next()) {
-                return rs.getInt("book_count");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return 0;
-    }  
-    
-    public int getReservationCount() {
-        String sql = "SELECT COUNT(reservation_id) AS reservation_count FROM reservations";
-        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-            if (rs.next()) {
-                return rs.getInt("reservation_count");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return 0;
-    }  
-    
-    public int getCurrentlyBorrowingCount() {
-        String sql = "SELECT COUNT(borrow_id) AS currentlyBorrowing_count FROM borrowing";
-        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-            if (rs.next()) {
-                return rs.getInt("currentlyBorrowing_count");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return 0;
-    }  
-    
-    public int getOverdueCount() {
-        String sql = "SELECT COUNT(borrow_id) AS overdue_count FROM borrowing WHERE status = 'Overdue'";
-        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-            if (rs.next()) {
-                return rs.getInt("overdue_count");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return 0;
-    }  
-    
-    public int getTotalCount() {
-        String sql = "SELECT COUNT(history_id) AS total_count FROM borrowhistory";
-        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-            if (rs.next()) {
-                return rs.getInt("total_count");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return 0;
-    }  
-    
-    public List<Book> getAllBooks() {
+    public List<Book> searchBooks(String query) {
         List<Book> books = new ArrayList<>();
-        String sql = "SELECT book_id, title, author, category, isbn, quantity, created_at, updated_at FROM Books";
-        
-        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-            while (rs.next()) {
-                Book book = new Book();
-                book.setBookId(rs.getInt("book_id"));
-                book.setTitle(rs.getString("title"));
-                book.setAuthor(rs.getString("author"));
-                book.setCategory(rs.getString("category"));
-                book.setIsbn(rs.getString("isbn"));
-                book.setQuantity(rs.getInt("quantity"));
-                book.setCreatedAt(rs.getTimestamp("created_at"));
-                book.setUpdatedAt(rs.getTimestamp("updated_at"));
-                books.add(book);
+        String sql = "SELECT book_id, title, author, category, isbn, publisher, published_year, quantity, created_at, updated_at FROM books WHERE title LIKE ? OR author LIKE ? OR category LIKE ? OR isbn LIKE ? OR publisher LIKE ? OR published_year LIKE ?";
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql)) {
+            String searchQuery = "%" + query + "%";
+            pstmt.setString(1, searchQuery);
+            pstmt.setString(2, searchQuery);
+            pstmt.setString(3, searchQuery);
+            pstmt.setString(4, searchQuery);
+            pstmt.setString(5, searchQuery);
+            pstmt.setString(6, searchQuery);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Book book = new Book();
+                    book.setBookId(rs.getInt("book_id"));
+                    book.setTitle(rs.getString("title"));
+                    book.setAuthor(rs.getString("author"));
+                    book.setCategory(rs.getString("category"));
+                    book.setIsbn(rs.getString("isbn"));
+                    book.setPublisher(rs.getString("publisher"));
+                    book.setPublishedYear(rs.getInt("published_year"));
+                    book.setQuantity(rs.getInt("quantity"));
+                    book.setCreatedAt(rs.getTimestamp("created_at"));
+                    book.setUpdatedAt(rs.getTimestamp("updated_at"));
+                    books.add(book);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -110,7 +49,7 @@ public class BookController {
     }
     
     public boolean addBook(Book book) {
-        String query = "INSERT INTO books (title, author, category, isbn, quantity) VALUES (?, ?, ?, ?, ?)";
+        String query = "INSERT INTO books (title, author, category, isbn, publisher, published_year, quantity) VALUES (?, ?, ?, ?, ?, ?, ?)";
         
         try (Connection conn = db.getConnection();
              PreparedStatement preparedStatement = conn.prepareStatement(query)) {
@@ -119,7 +58,9 @@ public class BookController {
             preparedStatement.setString(2, book.getAuthor());
             preparedStatement.setString(3, book.getCategory());
             preparedStatement.setString(4, book.getIsbn());
-            preparedStatement.setInt(5, book.getQuantity());
+            preparedStatement.setString(5, book.getPublisher());
+            preparedStatement.setInt(6, book.getPublishedYear());
+            preparedStatement.setInt(7, book.getQuantity());
 
             int rowsAffected = preparedStatement.executeUpdate();
             return rowsAffected > 0;
@@ -128,30 +69,6 @@ public class BookController {
             e.printStackTrace();
             return false;
         }
-    }
-    
-    public Book getBookById(int bookId) {
-        String sql = "SELECT book_id, title, author, category, isbn, quantity, created_at, updated_at FROM books WHERE book_id = ?";
-        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql)) {
-            pstmt.setInt(1, bookId);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    Book book = new Book();
-                    book.setBookId(rs.getInt("book_id"));
-                    book.setTitle(rs.getString("title"));
-                    book.setAuthor(rs.getString("author"));
-                    book.setCategory(rs.getString("category"));
-                    book.setIsbn(rs.getString("isbn"));
-                    book.setQuantity(rs.getInt("quantity"));
-                    book.setCreatedAt(rs.getTimestamp("created_at"));
-                    book.setUpdatedAt(rs.getTimestamp("updated_at"));
-                    return book;
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
     
     public boolean updateBook(Book book) {
@@ -181,16 +98,99 @@ public class BookController {
         return false;
     }
     
-    public List<Book> searchBooks(String query) {
-    List<Book> books = new ArrayList<>();
-    String sql = "SELECT book_id, title, author, category, isbn, quantity, created_at, updated_at FROM books WHERE title LIKE ? OR author LIKE ? OR category LIKE ? OR isbn LIKE ?";
-    try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql)) {
-        String searchQuery = "%" + query + "%";
-        pstmt.setString(1, searchQuery);
-        pstmt.setString(2, searchQuery);
-        pstmt.setString(3, searchQuery);
-        pstmt.setString(4, searchQuery);
-        try (ResultSet rs = pstmt.executeQuery()) {
+    public Book getBookById(int bookId) {
+        String sql = "SELECT book_id, title, author, category, isbn, publisher, published_year, quantity, created_at, updated_at FROM books WHERE book_id = ?";
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql)) {
+            pstmt.setInt(1, bookId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    Book book = new Book();
+                    book.setBookId(rs.getInt("book_id"));
+                    book.setTitle(rs.getString("title"));
+                    book.setAuthor(rs.getString("author"));
+                    book.setCategory(rs.getString("category"));
+                    book.setIsbn(rs.getString("isbn"));
+                    book.setPublisher(rs.getString("publisher"));
+                    book.setPublishedYear(rs.getInt("published_year"));
+                    book.setQuantity(rs.getInt("quantity"));
+                    book.setCreatedAt(rs.getTimestamp("created_at"));
+                    book.setUpdatedAt(rs.getTimestamp("updated_at"));
+                    return book;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public int getBookCount() {
+        String sql = "SELECT COUNT(book_id) AS book_count FROM books";
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql); ResultSet rs = pstmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("book_count");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
+    public int getCurrentlyReservedCount() {
+        String sql = "SELECT COUNT(reservation_id) AS reservation_count FROM reservations where status = 'Pending'";
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql); ResultSet rs = pstmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("reservation_count");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int getCurrentlyBorrowingCount() {
+        String sql = "SELECT COUNT(borrow_id) AS currentlyBorrowing_count FROM borrowing where status = 'Borrowed'";
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql); ResultSet rs = pstmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("currentlyBorrowing_count");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
+    public int getCurrentlyOverdueCount() {
+        String sql = "SELECT COUNT(borrow_id) AS overdue_count FROM borrowing WHERE status = 'Overdue'";
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("overdue_count");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }  
+    
+    public int getTotalBorrowingCount() {
+        String sql = "SELECT COUNT(borrow_id) AS totalBorrowing_count FROM borrowing";
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql); ResultSet rs = pstmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("totalBorrowing_count");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
+    public List<Book> getAllBooks() {
+        List<Book> books = new ArrayList<>();
+        String sql = "SELECT book_id, title, author, category, isbn, publisher, published_year, quantity, created_at, updated_at FROM Books";
+        
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
                 Book book = new Book();
                 book.setBookId(rs.getInt("book_id"));
@@ -198,16 +198,77 @@ public class BookController {
                 book.setAuthor(rs.getString("author"));
                 book.setCategory(rs.getString("category"));
                 book.setIsbn(rs.getString("isbn"));
+                book.setPublisher(rs.getString("publisher"));
+                book.setPublishedYear(rs.getInt("published_year"));
                 book.setQuantity(rs.getInt("quantity"));
                 book.setCreatedAt(rs.getTimestamp("created_at"));
                 book.setUpdatedAt(rs.getTimestamp("updated_at"));
                 books.add(book);
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
+        return books;
     }
-    return books;
-}
+    
+    public List<Book> getMostBorrowedBooks() {
+        List<Book> books = new ArrayList<>();
+        // SQL query to select top 10 most borrowed books based on borrow count
+        String sql = "SELECT b.book_id, b.title, b.author, b.category, b.isbn, b.publisher, b.published_year, b.quantity, b.created_at, b.updated_at, COUNT(br.book_id) AS borrow_count " +
+                     "FROM books b LEFT JOIN borrowings br ON b.book_id = br.book_id " +
+                     "GROUP BY b.book_id " +
+                     "ORDER BY borrow_count DESC " +
+                     "LIMIT 10";
+
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                Book book = new Book();
+                book.setBookId(rs.getInt("book_id"));
+                book.setTitle(rs.getString("title"));
+                book.setAuthor(rs.getString("author"));
+                book.setCategory(rs.getString("category"));
+                book.setIsbn(rs.getString("isbn"));
+                book.setPublisher(rs.getString("publisher"));
+                book.setPublishedYear(rs.getInt("published_year"));
+                book.setQuantity(rs.getInt("quantity"));
+                book.setCreatedAt(rs.getTimestamp("created_at"));
+                book.setUpdatedAt(rs.getTimestamp("updated_at"));
+                books.add(book);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return books;
+    }
+    
+    public List<Book> getNewestBooks() {
+        List<Book> books = new ArrayList<>();
+        // SQL query to select top 10 newest books based on created_at
+        String sql = "SELECT book_id, title, author, category, isbn, publisher, published_year, quantity, created_at, updated_at "
+                + "FROM books "
+                + "ORDER BY created_at DESC "
+                + "LIMIT 10";
+
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql); ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                Book book = new Book();
+                book.setBookId(rs.getInt("book_id"));
+                book.setTitle(rs.getString("title"));
+                book.setAuthor(rs.getString("author"));
+                book.setCategory(rs.getString("category"));
+                book.setIsbn(rs.getString("isbn"));
+                book.setPublisher(rs.getString("publisher"));
+                book.setPublishedYear(rs.getInt("published_year"));
+                book.setQuantity(rs.getInt("quantity"));
+                book.setCreatedAt(rs.getTimestamp("created_at"));
+                book.setUpdatedAt(rs.getTimestamp("updated_at"));
+                books.add(book);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return books;
+    }
     
 }

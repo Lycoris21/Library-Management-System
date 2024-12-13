@@ -1,98 +1,64 @@
 package controller;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import model.Borrowing; // Assuming you have a model for borrowing records
+import java.util.*;
 import utility.Database;
+import model.Borrowing;
 
-public class BorrowingController {
+public class BorrowingController{
     
     private Database db;
 
-    // Constructor to initialize the database connection
     public BorrowingController(Database db) {
         this.db = db;
     }
+    
+    public List<Borrowing> getLatestTransactions() {
+        List<Borrowing> transactions = new ArrayList<>();
+        // SQL query to select the latest transactions, including transaction type and book title
+        String sql = "SELECT br.borrow_id, br.book_id, br.user_id, br.borrow_date, br.return_date, br.actual_return_date, "
+                + "b.title, r.status AS reservation_status "
+                + "FROM borrowings br "
+                + "JOIN books b ON br.book_id = b.book_id "
+                + "LEFT JOIN reservations r ON br.book_id = r.book_id AND br.user_id = r.user_id "
+                + "ORDER BY br.borrow_date DESC "
+                + "LIMIT 10";
 
-    public List<Borrowing> getCurrentBorrowingBooks(int userId) {
-        List<Borrowing> records = new ArrayList<>();
-        String sql = "SELECT b.book_id, b.title, br.borrow_id, br.borrow_date, br.return_date, br.status " +
-                     "FROM Borrowing br " +
-                     "JOIN Books b ON br.book_id = b.book_id " +
-                     "WHERE br.user_id = ? AND br.status = 'Borrowed'";
-        
-        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql)) {
-            pstmt.setInt(1, userId);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    Borrowing record = new Borrowing();
-                    record.setBorrowId(rs.getInt("borrow_id"));
-                    record.setBookId(rs.getInt("book_id"));
-                    record.setTitle(rs.getString("title"));
-                    record.setBorrowDate(rs.getTimestamp("borrow_date"));
-                    record.setReturnDate(rs.getTimestamp("return_date"));
-                    record.setStatus(rs.getString("status"));
-                    records.add(record);
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return records;
-    }
-
-    public List<Borrowing> getTop10RecentlyBorrowedBooks() {
-        List<Borrowing> records = new ArrayList<>();
-        String sql = "SELECT b.book_id, b.title, br.borrow_id, br.borrow_date, br.return_date, br.status " +
-                     "FROM Borrowing br " +
-                     "JOIN Books b ON br.book_id = b.book_id " +
-                     "ORDER BY br.borrow_date DESC " +
-                     "OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY";
-        
-        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql); ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
-                Borrowing record = new Borrowing();
-                record.setBorrowId(rs.getInt("borrow_id"));
-                record.setBookId(rs.getInt("book_id"));
-                record.setTitle(rs.getString("title"));
-                record.setBorrowDate(rs.getTimestamp("borrow_date"));
-                record.setReturnDate(rs.getTimestamp("return_date"));
-                record.setStatus(rs.getString("status"));
-                records.add(record);
+                Borrowing borrowing = new Borrowing();
+                borrowing.setBorrowId(rs.getInt("borrow_id"));
+                borrowing.setBookId(rs.getInt("book_id"));
+                borrowing.setUserId(rs.getInt("user_id"));
+                borrowing.setBorrowDate(rs.getTimestamp("borrow_date"));
+                borrowing.setReturnDate(rs.getTimestamp("return_date"));
+                borrowing.setActualReturnDate(rs.getTimestamp("actual_return_date"));
+
+                // Derive the transaction status
+                String transactionType = deriveTransactionStatus(rs.getString("reservation_status"), borrowing);
+                borrowing.setStatus(transactionType);
+
+                borrowing.setBookTitle(rs.getString("title")); // Assuming Borrowing model has a `bookTitle` field
+                transactions.add(borrowing);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return records;
+        return transactions;
     }
 
-    public List<Borrowing> getBorrowingHistory(int userId) {
-        List<Borrowing> records = new ArrayList<>();
-        String sql = "SELECT b.book_id, b.title, br.borrow_id, br.borrow_date, br.return_date, br.actual_return_date, br.status " +
-                     "FROM BorrowHistory br " +
-                     "JOIN Books b ON br.book_id = b.book_id " +
-                     "WHERE br.user_id = ?";
-        
-        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql)) {
-            pstmt.setInt(1, userId);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    Borrowing record = new Borrowing();
-                    record.setBorrowId(rs.getInt("borrow_id"));
-                    record.setBookId(rs.getInt("book_id"));
-                    record.setTitle(rs.getString("title"));
-                    record.setBorrowDate(rs.getTimestamp("borrow_date"));
-                    record.setReturnDate(rs.getTimestamp("return_date"));
-                    record.setActualReturnDate(rs.getTimestamp("actual_return_date"));
-                    record.setStatus(rs.getString("status"));
-                    records.add(record);
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+    
+    private String deriveTransactionStatus(String reservationStatus, Borrowing borrowing) {
+        if (reservationStatus != null && reservationStatus.equals("Pending")) {
+            return "Reservation"; // If reservation is still pending
+        } else if (borrowing.getStatus().equals("Borrowed")) {
+            return "Borrowing"; // If the status is "Borrowed"
+        } else if (borrowing.getStatus().equals("Returned")) {
+            return "Returning"; // If the status is "Returned"
         }
-        return records;
+        return "Unknown"; // In case no valid status is found
     }
+
+
+    
 }

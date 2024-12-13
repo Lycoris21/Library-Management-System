@@ -182,11 +182,11 @@ public class AdminBookManagement extends JFrame {
         booksLabel.setBounds(400, 120, 200, 30);
 
         // Table with Headers
-        String[] columns = {"ID", "Title", "Author", "Category", "ISBN", "Quantity", "Action"};
+        String[] columns = {"ID", "Title", "Author", "Category", "ISBN", "Publisher", "Published Year", "Quantity", "Action"};
         DefaultTableModel model = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 6;
+                return column == 8;
             }
         };
 
@@ -202,8 +202,8 @@ public class AdminBookManagement extends JFrame {
         }
 
         // Apply the ButtonRenderer and ButtonEditor to the "Action" column (index 6)
-        table.getColumnModel().getColumn(6).setCellRenderer(new ButtonRenderer());
-        table.getColumnModel().getColumn(6).setCellEditor(new ButtonEditor(nav));
+        table.getColumnModel().getColumn(8).setCellRenderer(new ButtonRenderer());
+        table.getColumnModel().getColumn(8).setCellEditor(new ButtonEditor(nav));
 
         // Populate table with data from the database
         populateTable();
@@ -261,6 +261,8 @@ public class AdminBookManagement extends JFrame {
                     book.getAuthor(),
                     book.getCategory(),
                     book.getIsbn(),
+                    book.getPublisher(),
+                    book.getPublishedYear(),
                     book.getQuantity(),
                     "" // Placeholder for action buttons
                 });
@@ -337,18 +339,20 @@ public class AdminBookManagement extends JFrame {
                 int row = table.getSelectedRow();
                 int bookId = (int) table.getValueAt(row, 0);
                 Book book = bookC.getBookById(bookId);
-
+                
+                Frame frame = (Frame) SwingUtilities.getWindowAncestor(panel);
                 EditBookModal editBookDialog = new EditBookModal((Frame) SwingUtilities.getWindowAncestor(panel), true, book);
+                editBookDialog.setLocationRelativeTo(frame);
                 editBookDialog.setVisible(true);
 
                 if (editBookDialog.isSaved()) {
                     Book updatedBook = editBookDialog.getBook();
                     boolean isUpdated = bookC.updateBook(updatedBook);
                     if (isUpdated) {
-                        JOptionPane.showMessageDialog(panel, "Book updated successfully!");
+                        JOptionPane.showMessageDialog(frame, "Book updated successfully!");
                         populateTable();
                     } else {
-                        JOptionPane.showMessageDialog(panel, "Failed to update book!", "Error", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(frame, "Failed to update book!", "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 }
                 fireEditingStopped();
@@ -361,10 +365,10 @@ public class AdminBookManagement extends JFrame {
                     Book book = bookC.getBookById(bookId);
                     
                     showDeleteConfirmation(book);
-
+                    
+                    //populateTable();
                     // Ensure the table model is updated correctly before stopping the editing
-                    DefaultTableModel model = (DefaultTableModel) table.getModel();
-                    model.removeRow(row);
+//                    
                     
                     fireEditingStopped();
                 }

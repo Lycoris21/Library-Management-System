@@ -16,8 +16,9 @@ import view.ReaderDashboard;
 public class Login extends javax.swing.JFrame {
     
     Database db = new Database();
-    User userM = new User();
     UserController userC = new UserController(db);
+    User user = new User();
+    
 
     public Login() {
         initComponents();
@@ -42,10 +43,10 @@ public class Login extends javax.swing.JFrame {
             }
         }
         setVisible(false);
-    } else {
-        JOptionPane.showMessageDialog(this, "Invalid username or password");
-    }      
-}
+        } else {
+            JOptionPane.showMessageDialog(this, "Invalid username or password");
+        }      
+    }
     
     private void regMouseClicked(java.awt.event.MouseEvent evt) {                                      
             Register r = new Register();
@@ -81,12 +82,7 @@ public class Login extends javax.swing.JFrame {
     }
     
    private boolean validateLogin(String username, String password) {
-        // Create a new Database object to get the connection
-        Database db = new Database();
-        UserController userController = new UserController(db);
-
-        // Fetch the user from the database by username
-        User user = userController.getUserByUsername(username);
+        User user = userC.getUserByUsername(username);
 
         if (user != null && user.getPassword() != null) {
             // Compare the passwords (assuming plaintext for simplicity; use hashed comparison in production)

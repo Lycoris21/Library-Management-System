@@ -192,7 +192,7 @@ public class AdminDashboard extends javax.swing.JFrame{
         reservationsl.setFont(new Font("Serif", Font.BOLD, 25));
         reservationsl.setForeground(Color.WHITE);
         
-        reservationsc = new JLabel(""+bookC.getReservationCount(), SwingConstants.CENTER);
+        reservationsc = new JLabel(""+bookC.getCurrentlyReservedCount(), SwingConstants.CENTER);
         reservationsc.setFont(new Font("Serif", Font.BOLD, 40));
         reservationsc.setForeground(Color.WHITE);
         
@@ -226,7 +226,7 @@ public class AdminDashboard extends javax.swing.JFrame{
         overduel.setFont(new Font("Serif", Font.BOLD, 25));
         overduel.setForeground(Color.WHITE);
         
-        overduec = new JLabel(""+bookC.getOverdueCount(), SwingConstants.CENTER);
+        overduec = new JLabel(""+bookC.getCurrentlyOverdueCount(), SwingConstants.CENTER);
         overduec.setFont(new Font("Serif", Font.BOLD, 40));
         overduec.setForeground(Color.WHITE);
         
@@ -242,7 +242,7 @@ public class AdminDashboard extends javax.swing.JFrame{
         totalbl.setFont(new Font("Serif", Font.BOLD, 25));
         totalbl.setForeground(Color.WHITE);
         
-        totalbc = new JLabel(""+bookC.getTotalCount(), SwingConstants.CENTER);
+        totalbc = new JLabel(""+bookC.getTotalBorrowingCount(), SwingConstants.CENTER);
         totalbc.setFont(new Font("Serif", Font.BOLD, 40));
         totalbc.setForeground(Color.WHITE);
         

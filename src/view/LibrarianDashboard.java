@@ -146,6 +146,75 @@ public class LibrarianDashboard extends JFrame {
         nav.add(thistory);
         nav.add(username);
         
+        GridLayout gridLayout = new GridLayout(2, 1);
+        gridLayout.setVgap(-50);
+        
+        //BOX1
+        reservationsl = new JLabel("RESERVATIONS", SwingConstants.CENTER);
+        reservationsl.setFont(new Font("Serif", Font.BOLD, 25));
+        reservationsl.setForeground(Color.WHITE);
+        
+        reservationsc = new JLabel(""+bookC.getCurrentlyOverdueCount(), SwingConstants.CENTER);
+        reservationsc.setFont(new Font("Serif", Font.BOLD, 40));
+        reservationsc.setForeground(Color.WHITE);
+        
+        box1 = new JPanel();
+        box1.setBackground(new Color(0x00233D));
+        box1.setLayout(gridLayout);
+        box1.add(reservationsl);
+        box1.add(reservationsc);
+        
+        //BOX2
+        borrowingl = new JLabel("BORROWING", SwingConstants.CENTER);
+        borrowingl.setFont(new Font("Serif", Font.BOLD, 25));
+        borrowingl.setForeground(Color.WHITE);
+        
+        borrowingc = new JLabel(""+bookC.getCurrentlyBorrowingCount(), SwingConstants.CENTER);
+        borrowingc.setFont(new Font("Serif", Font.BOLD, 40));
+        borrowingc.setForeground(Color.WHITE);
+        
+        box2 = new JPanel();
+        box2.setBackground(new Color(0x00233D));
+        box2.setLayout(gridLayout);
+        box2.add(borrowingl);
+        box2.add(borrowingc);
+        
+        
+        //BOX3
+        overduel = new JLabel("OVERDUE", SwingConstants.CENTER);
+        overduel.setPreferredSize(new Dimension(80, 50));
+        overduel.setSize(reservationsl.getPreferredSize());
+        overduel.setFont(new Font("Serif", Font.BOLD, 25));
+        overduel.setForeground(Color.WHITE);
+        
+        overduec = new JLabel(""+bookC.getCurrentlyOverdueCount(), SwingConstants.CENTER);
+        overduec.setFont(new Font("Serif", Font.BOLD, 40));
+        overduec.setForeground(Color.WHITE);
+        
+        box3 = new JPanel();
+        box3.setBackground(new Color(0x00233D));
+        box3.setLayout(gridLayout);
+        box3.add(overduel);
+        box3.add(overduec);
+        
+        counts = new JPanel();
+        counts.setBounds(350,50,1100,150);
+        counts.setBackground(null);
+        counts.setLayout(new GridLayout(1,3,50,70));
+        
+        counts.add(box1);
+        counts.add(box2);
+        counts.add(box3);
+        
+//        top10 = new JPanel();
+//        top10.setBounds(350,50,1100,500);
+//        top10.setBackground(null);
+//        top10.setLayout(new GridLayout(1,3,50,70));
+//        
+//        top10.add(box1);
+//        top10.add(box2);
+//        top10.add(box3);
+        
         
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1535,820);
@@ -156,7 +225,8 @@ public class LibrarianDashboard extends JFrame {
         setVisible(true);
         
         add(nav);
-        //add(div2);
+        add(counts);
+        add(top10);
     }
     
     private javax.swing.JPanel nav;
@@ -166,5 +236,16 @@ public class LibrarianDashboard extends JFrame {
     private javax.swing.JLabel opsm;
     private javax.swing.JLabel thistory;
     private javax.swing.JLabel username;
+    private javax.swing.JPanel box1;
+    private javax.swing.JPanel box2;
+    private javax.swing.JPanel box3;
+    private javax.swing.JLabel reservationsl;
+    private javax.swing.JLabel borrowingl;
+    private javax.swing.JLabel overduel;
+    private javax.swing.JLabel reservationsc;
+    private javax.swing.JLabel borrowingc;
+    private javax.swing.JLabel overduec;
+    private javax.swing.JPanel counts;
+    private javax.swing.JPanel top10;
     
 }

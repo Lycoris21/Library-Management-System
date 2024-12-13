@@ -10,46 +10,61 @@ public class AddBookModal extends JDialog {
     private final JTextField authorField;
     private final JTextField categoryField;
     private final JTextField isbnField;
+    private final JTextField publisherField;
+    private final JSpinner publishedYearSpinner;
     private final JSpinner quantitySpinner;
+    private final JPanel panel;
     private boolean saved;
     private Book book;
 
     public AddBookModal(Frame parent, boolean modal) {
         super(parent, modal);
         setTitle("Add Book");
-        setSize(400, 300);
+        setSize(500, 500);
+        panel = new JPanel(new GridLayout(8, 2, 10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        setContentPane(panel);
         setLocationRelativeTo(parent);
-        setLayout(new GridLayout(6, 2, 10, 10));
+        
 
         // Fields
-        add(new JLabel("Title:"));
+        panel.add(new JLabel("Title:"));
         titleField = new JTextField();
-        add(titleField);
+        panel.add(titleField);
 
-        add(new JLabel("Author:"));
+        panel.add(new JLabel("Author:"));
         authorField = new JTextField();
-        add(authorField);
+        panel.add(authorField);
 
-        add(new JLabel("Category:"));
+        panel.add(new JLabel("Category:"));
         categoryField = new JTextField();
-        add(categoryField);
+        panel.add(categoryField);
 
-        add(new JLabel("ISBN:"));
+        panel.add(new JLabel("ISBN:"));
         isbnField = new JTextField();
-        add(isbnField);
+        panel.add(isbnField);
+        
+        panel.add(new JLabel("Publisher:"));
+        publisherField = new JTextField();
+        panel.add(publisherField);
+        
+        panel.add(new JLabel("Published Year:"));
+        publishedYearSpinner = new JSpinner(new SpinnerNumberModel(2000, 1, Integer.MAX_VALUE, 1));
+        panel.add(publishedYearSpinner);
 
-        add(new JLabel("Quantity:"));
+        panel.add(new JLabel("Quantity:"));
         quantitySpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
-        add(quantitySpinner);
+        panel.add(quantitySpinner);
 
         // Buttons
         JButton saveButton = new JButton("Save");
         saveButton.addActionListener(e -> saveBook());
-        add(saveButton);
+        panel.add(saveButton);
 
         JButton cancelButton = new JButton("Cancel");
         cancelButton.addActionListener(e -> dispose());
-        add(cancelButton);
+        panel.add(cancelButton);
+        
     }
 
     private void saveBook() {
@@ -57,14 +72,16 @@ public class AddBookModal extends JDialog {
         String author = authorField.getText().trim();
         String category = categoryField.getText().trim();
         String isbn = isbnField.getText().trim();
+        String publisher = publisherField.getText().trim();
+        int publishedYear = (int) publishedYearSpinner.getValue();
         int quantity = (int) quantitySpinner.getValue();
 
-        if (title.isEmpty() || author.isEmpty() || category.isEmpty() || isbn.isEmpty()) {
+        if (title.isEmpty() || author.isEmpty() || category.isEmpty() || isbn.isEmpty() || publisher.isEmpty()) {
             JOptionPane.showMessageDialog(this, "All fields must be filled!", "Validation Error", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        book = new Book(title, author, category, isbn, quantity);
+        book = new Book(title, author, category, isbn, publisher, publishedYear, quantity);
         saved = true;
         dispose();
     }

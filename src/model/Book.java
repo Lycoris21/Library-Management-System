@@ -1,84 +1,35 @@
 package model;
 
-import java.util.*;
+import java.sql.Timestamp;
 
-/**
- *
- * @author Christine Ann Dejito
- */
-public class Book {
-    
-    private int bookCount;
-    private int reservationCount;
-    private int currentlyBorrowingCount;
-    private int overdueCount;
-    private int totalCount;
+public class Book{
     
     private int bookId;
     private String title;
     private String author;
     private String category;
     private String isbn;
+    private String publisher;
+    private int publishedYear;
     private int quantity;
-    private Date createdAt;
-    private Date updatedAt;
+    private Timestamp createdAt;
+    private Timestamp updatedAt;
+
+    public Book() {}
     
-    public Book(){
-        
-    }
-    
-    public Book(String title, String author, String category, String isbn, int quantity) {
+    public Book(String title, String author, String category, String isbn, String publisher, int publishedYear, int quantity) {
         this.title = title;
         this.author = author;
         this.category = category;
         this.isbn = isbn;
+        this.publisher = publisher;
+        this.publishedYear = publishedYear;
         this.quantity = quantity;
-    }
-    
-    public int getBookCount(){
-        return bookCount;
-    }
-    
-    public void setBookCount(int bookCount){
-        this.bookCount = bookCount;
-    }
-    
-    public int getReservationCount(){
-        return reservationCount;
-    }
-    
-    public void setReservationCount(int reservationCount){
-        this.reservationCount = reservationCount;
-    }
-    
-    public int getCurrentlyBorrowingCount(){
-        return currentlyBorrowingCount;
-    }
-    
-    public void setCurrentlyBorrowingCount(int currentlyBorrowingCount){
-        this.currentlyBorrowingCount = currentlyBorrowingCount;
-    }
-    
-    public int getOverdueCount(){
-        return overdueCount;
-    }
-    
-    public void setOverdueCount(int overdueCount){
-        this.overdueCount = overdueCount;
-    }
-    
-    public int getTotalCount(){
-        return totalCount;
-    }
-    
-    public void setTotalCount(int totalCount){
-        this.totalCount = totalCount;
     }
     
     public int getBookId() {
         return bookId;
     }
-
     public void setBookId(int bookId) {
         this.bookId = bookId;
     }
@@ -86,7 +37,6 @@ public class Book {
     public String getTitle() {
         return title;
     }
-
     public void setTitle(String title) {
         this.title = title;
     }
@@ -94,7 +44,6 @@ public class Book {
     public String getAuthor() {
         return author;
     }
-
     public void setAuthor(String author) {
         this.author = author;
     }
@@ -102,7 +51,6 @@ public class Book {
     public String getCategory() {
         return category;
     }
-
     public void setCategory(String category) {
         this.category = category;
     }
@@ -110,39 +58,43 @@ public class Book {
     public String getIsbn() {
         return isbn;
     }
-
     public void setIsbn(String isbn) {
         this.isbn = isbn;
+    }
+
+    public String getPublisher() {
+        return publisher;
+    }
+    public void setPublisher(String publisher) {
+        this.publisher = publisher;
+    }
+
+    public int getPublishedYear() {
+        return publishedYear;
+    }
+    public void setPublishedYear(int publishedYear) {
+        this.publishedYear = publishedYear;
     }
 
     public int getQuantity() {
         return quantity;
     }
-
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
 
-    public Date getCreatedAt() {
+    public Timestamp getCreatedAt() {
         return createdAt;
     }
-
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Date getUpdatedAt() {
+    public Timestamp getUpdatedAt() {
         return updatedAt;
     }
-
-    public void setUpdatedAt(Date updatedAt) {
+    public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
     }
-
-    @Override
-    public String toString() {
-        return title + " by " + author + " (ISBN: " + isbn + ")"; // Customize the string representation as needed
-    }
-    
     
 }
