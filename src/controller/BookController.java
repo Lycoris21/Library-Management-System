@@ -72,14 +72,16 @@ public class BookController{
     }
     
     public boolean updateBook(Book book) {
-        String sql = "UPDATE books SET title = ?, author = ?, category = ?, isbn = ?, quantity = ?, updated_at = CURRENT_TIMESTAMP WHERE book_id = ?";
+        String sql = "UPDATE books SET title = ?, author = ?, category = ?, isbn = ?, publisher = ?, published_year = ?, quantity = ?, updated_at = CURRENT_TIMESTAMP WHERE book_id = ?";
         try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql)) {
             pstmt.setString(1, book.getTitle());
             pstmt.setString(2, book.getAuthor());
             pstmt.setString(3, book.getCategory());
             pstmt.setString(4, book.getIsbn());
-            pstmt.setInt(5, book.getQuantity());
-            pstmt.setInt(6, book.getBookId());
+            pstmt.setString(5, book.getPublisher());
+            pstmt.setInt(6, book.getPublishedYear());
+            pstmt.setInt(7, book.getQuantity());
+            pstmt.setInt(8, book.getBookId());
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
