@@ -376,11 +376,7 @@ public class AdminBookManagement extends JFrame {
                     Book book = bookC.getBookById(bookId);
                     
                     showDeleteConfirmation(book);
-                    
-                    //populateTable();
-                    // Ensure the table model is updated correctly before stopping the editing
-//                    
-                    
+            
                     fireEditingStopped();
                 }
             }
