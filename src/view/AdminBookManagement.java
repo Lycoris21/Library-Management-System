@@ -71,7 +71,13 @@ public class AdminBookManagement extends JFrame {
     }
 
     public static void main(String[] args) {
-        new AdminBookManagement().setVisible(true);
+        
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new AdminBookManagement().setVisible(true);
+            }
+        });
+        
     }
 
     private void initComponents() {

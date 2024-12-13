@@ -33,7 +33,13 @@ public class AdminUserManagement extends JFrame {
     } 
 
     public static void main(String[] args) {
-        new AdminUserManagement().setVisible(true);
+        
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new AdminUserManagement().setVisible(true);
+            }
+        });
+        
     }
 
     private void initComponents() {

@@ -33,7 +33,13 @@ public class AdminRecords extends JFrame {
     } 
 
     public static void main(String[] args) {
-        new AdminRecords().setVisible(true);
+        
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new AdminRecords().setVisible(true);
+            }
+        });
+        
     }
 
     private void initComponents() {
