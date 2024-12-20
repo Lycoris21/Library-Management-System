@@ -6,18 +6,16 @@ import controller.UserController;
 import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.List;
 import model.Book;
 import utility.Database;
 
 public class AdminBookManagement extends JFrame {
 
-    private Database db = new Database();
-    private BookController bookC = new BookController(db);
-    private BorrowingController borrowC = new BorrowingController(db);
-    private UserController userC = new UserController(db);
+    private final Database db = new Database();
+    private final BookController bookC = new BookController(db);
+    private final BorrowingController borrowC = new BorrowingController(db);
+    private final UserController userC = new UserController(db);
 
     private JTable table;
     private DefaultTableModel tableModel;
@@ -63,6 +61,7 @@ public class AdminBookManagement extends JFrame {
         ar.setVisible(true);
         setVisible(false);
     }
+    
 
     private void initComponents() {
         
@@ -138,7 +137,7 @@ public class AdminBookManagement extends JFrame {
         nav.add(records);
         nav.add(username);
 
-        JLabel searchLabel = new JLabel("Search:");
+        searchLabel = new JLabel("Search:");
         searchLabel.setFont(new Font("Serif", Font.PLAIN, 20));
         searchLabel.setBounds(360, 60, 100, 30);
         add(searchLabel);
@@ -147,14 +146,14 @@ public class AdminBookManagement extends JFrame {
         searchField.setBounds(430, 60, 700, 30);
         add(searchField);
 
-        JButton searchButton = new JButton("Search");
+        searchButton = new JButton("Search");
         searchButton.setBounds(1140, 60, 100, 30);
         searchButton.setForeground(Color.WHITE);
         searchButton.setBackground(new Color(0x316FA2));
         searchButton.addActionListener(evt -> searchBooks());
         add(searchButton);
 
-        JButton addBookButton = new JButton("Add Book");
+        addBookButton = new JButton("Add Book");
         addBookButton.setBounds(1260, 60, 100, 30);
         addBookButton.setForeground(Color.WHITE);
         addBookButton.setBackground(new Color(0x316FA2));
@@ -166,11 +165,11 @@ public class AdminBookManagement extends JFrame {
         booksLabel.setFont(new Font("Serif", Font.BOLD, 30));
         booksLabel.setBounds(360, 120, 200, 30);
         
-        String[] columns = {"ID", "Title", "Author", "Category", "ISBN", "Publisher", "Year", "Quantity", "Edit", "Delete"};
+        String[] columns = {"ID", "Title", "Author", "Category", "ISBN", "Publisher", "Year", "Quantity", "Status", "Edit", "Delete"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 8 || column == 9;
+                return column == 9 || column == 10;
             }
         };
         table = new JTable(tableModel);
@@ -180,12 +179,33 @@ public class AdminBookManagement extends JFrame {
         table.getTableHeader().setBackground(new Color(0x00233D));  // Set header background color
         table.getTableHeader().setForeground(Color.WHITE);  // Set header font color
         table.getTableHeader().setFont(new Font("Serif", Font.BOLD, 14));  // Set header font style and size
+        
+        // Center-align text in rows
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
+        
+        // Set preferred width for each column
+        TableColumnModel columnModel = table.getColumnModel();
+        columnModel.getColumn(0).setPreferredWidth(50);   // ID
+        columnModel.getColumn(1).setPreferredWidth(200); // Title
+        columnModel.getColumn(2).setPreferredWidth(150); // Author
+        columnModel.getColumn(3).setPreferredWidth(100); // Category
+        columnModel.getColumn(4).setPreferredWidth(110); // ISBN
+        columnModel.getColumn(5).setPreferredWidth(190); // Publisher
+        columnModel.getColumn(6).setPreferredWidth(70);  // Year
+        columnModel.getColumn(7).setPreferredWidth(80);  // Quantity
+        columnModel.getColumn(8).setPreferredWidth(100); // Status
+        columnModel.getColumn(9).setPreferredWidth(80);  // Edit
+        columnModel.getColumn(10).setPreferredWidth(80); // Delete
 
-        TableColumn editColumn = table.getColumnModel().getColumn(8);
+        TableColumn editColumn = table.getColumnModel().getColumn(9);
         editColumn.setCellRenderer(new ButtonRenderer("Edit"));
         editColumn.setCellEditor(new ButtonEditor("Edit"));
 
-        TableColumn deleteColumn = table.getColumnModel().getColumn(9);
+        TableColumn deleteColumn = table.getColumnModel().getColumn(10);
         deleteColumn.setCellRenderer(new ButtonRenderer("Delete"));
         deleteColumn.setCellEditor(new ButtonEditor("Delete"));
 
@@ -220,6 +240,7 @@ public class AdminBookManagement extends JFrame {
                 book.getPublisher(),
                 book.getPublishedYear(),
                 book.getQuantity(),
+                book.getStatus(),
                 "Edit",
                 "Delete"
             });
@@ -240,6 +261,7 @@ public class AdminBookManagement extends JFrame {
                 book.getPublisher(),
                 book.getPublishedYear(),
                 book.getQuantity(),
+                book.getStatus(),
                 "Edit",
                 "Delete"
             });
@@ -343,6 +365,9 @@ public class AdminBookManagement extends JFrame {
                 }
             } else if (action.equals("Delete")) {
                 try {
+                    
+                    stopCellEditing();
+                    
                     int bookId = (int) tableModel.getValueAt(row, 0);
                     int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this book?", "Delete Confirmation", JOptionPane.YES_NO_OPTION);
 
@@ -350,7 +375,8 @@ public class AdminBookManagement extends JFrame {
                         boolean isDeleted = bookC.deleteBook(bookId);
                         if (isDeleted) {
                             JOptionPane.showMessageDialog(null, "Book deleted successfully!");
-                            tableModel.removeRow(row);
+//                            tableModel.removeRow(row);
+                            populateTable();
                         } else {
                             JOptionPane.showMessageDialog(null, "Failed to delete book!", "Error", JOptionPane.ERROR_MESSAGE);
                         }

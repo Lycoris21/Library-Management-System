@@ -5,8 +5,6 @@ import javax.swing.*;
 import controller.BookController;
 import controller.BorrowingController;
 import controller.UserController;
-import model.Book;
-import model.User;
 import utility.Database;
 
 /**
@@ -169,7 +167,7 @@ public class AdminDashboard extends javax.swing.JFrame{
         
         
         //BOX3
-        reservationsl = new JLabel("<html>RESERVATIONS COUNT</html>", SwingConstants.CENTER);
+        reservationsl = new JLabel("<html><div style='text-align: center'>RESERVATIONS COUNT</div></html>", SwingConstants.CENTER);
         reservationsl.setPreferredSize(new Dimension(80, 50));
         reservationsl.setSize(reservationsl.getPreferredSize());
         reservationsl.setFont(new Font("Serif", Font.BOLD, 25));
@@ -184,10 +182,11 @@ public class AdminDashboard extends javax.swing.JFrame{
         box3.setLayout(gridLayout);
         box3.add(reservationsl);
         box3.add(reservationsc);
+        box3.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
         
         
         //BOX4
-        borrowl = new JLabel("<html>CURRENTLY BORROWING COUNT</html>", SwingConstants.CENTER);
+        borrowl = new JLabel("<html><div style='text-align: center'>CURRENTLY BORROWING COUNT</div></html>", SwingConstants.CENTER);
 //        borrowl.setPreferredSize(new Dimension(120, 60)); // Set width and height
 //        borrowl.setSize(borrowl.getPreferredSize());
         borrowl.setFont(new Font("Serif", Font.BOLD, 25));
@@ -205,7 +204,7 @@ public class AdminDashboard extends javax.swing.JFrame{
         
         
         //BOX5
-        overduel = new JLabel("<html>OVERDUE BOOKS COUNT</html>", SwingConstants.CENTER);
+        overduel = new JLabel("<html><div style='text-align: center'>OVERDUE BOOKS COUNT</div></html>", SwingConstants.CENTER);
         overduel.setFont(new Font("Serif", Font.BOLD, 25));
         overduel.setForeground(Color.WHITE);
         
@@ -221,7 +220,7 @@ public class AdminDashboard extends javax.swing.JFrame{
         
         
         //BOX6
-        totalbl = new JLabel("<html>TOTAL BORROWED COUNT</html>", SwingConstants.CENTER);
+        totalbl = new JLabel("<html><div style='text-align: center'>TOTAL BORROWED COUNT</div></html>", SwingConstants.CENTER);
         totalbl.setFont(new Font("Serif", Font.BOLD, 25));
         totalbl.setForeground(Color.WHITE);
         

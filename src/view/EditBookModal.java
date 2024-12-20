@@ -13,6 +13,7 @@ public class EditBookModal extends JDialog {
     private final JTextField publisherField;
     private final JSpinner publishedYearSpinner;
     private final JSpinner quantitySpinner;
+    private final JTextField statusField;
     private final JPanel panel;
     private boolean saved;
     private Book book;
@@ -20,8 +21,8 @@ public class EditBookModal extends JDialog {
     public EditBookModal(Frame parent, boolean modal, Book book) {
         super(parent, modal);
         setTitle("Edit Book");
-        setSize(500, 500);
-        panel = new JPanel(new GridLayout(8, 2, 10, 10));
+        setSize(500, 550);
+        panel = new JPanel(new GridLayout(9, 2, 10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         setContentPane(panel);
         setLocationRelativeTo(parent);        
@@ -55,6 +56,10 @@ public class EditBookModal extends JDialog {
         panel.add(new JLabel("Quantity:"));
         quantitySpinner = new JSpinner(new SpinnerNumberModel(book.getQuantity(), 1, Integer.MAX_VALUE, 1));
         panel.add(quantitySpinner);
+        
+        panel.add(new JLabel("Status:"));
+        statusField = new JTextField(book.getStatus());
+        panel.add(statusField);
 
         // Buttons
         JButton saveButton = new JButton("Save");
@@ -74,6 +79,7 @@ public class EditBookModal extends JDialog {
         String publisher = publisherField.getText().trim();
         int publishedYear = (int) publishedYearSpinner.getValue();
         int quantity = (int) quantitySpinner.getValue();
+        String status = statusField.getText().trim();
 
         if (title.isEmpty() || author.isEmpty() || category.isEmpty() || isbn.isEmpty() || publisher.isEmpty()) {
             JOptionPane.showMessageDialog(this, "All fields must be filled!", "Validation Error", JOptionPane.WARNING_MESSAGE);
@@ -87,6 +93,7 @@ public class EditBookModal extends JDialog {
         book.setPublisher(publisher);
         book.setPublishedYear(publishedYear);
         book.setQuantity(quantity);
+        book.setStatus(status);
         saved = true;
         dispose();
     }

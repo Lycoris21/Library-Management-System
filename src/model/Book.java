@@ -12,12 +12,13 @@ public class Book{
     private String publisher;
     private int publishedYear;
     private int quantity;
+    private String status;
     private Timestamp createdAt;
     private Timestamp updatedAt;
 
     public Book() {}
     
-    public Book(String title, String author, String category, String isbn, String publisher, int publishedYear, int quantity) {
+    public Book(String title, String author, String category, String isbn, String publisher, int publishedYear, int quantity, String status) {
         this.title = title;
         this.author = author;
         this.category = category;
@@ -25,6 +26,7 @@ public class Book{
         this.publisher = publisher;
         this.publishedYear = publishedYear;
         this.quantity = quantity;
+        this.status = status;
     }
     
     public int getBookId() {
@@ -81,6 +83,13 @@ public class Book{
     }
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+    
+    public String getStatus() {
+        return status;
+    }
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public Timestamp getCreatedAt() {
