@@ -8,19 +8,21 @@ import model.User;
 
 public class AddUserModal extends JDialog {
 
+    
+    private final JTextField usernameField;
+    private final JPasswordField passwordField;
+    private final JComboBox<String> roleComboBox;
+    private final JPanel panel;
     private boolean saved;
-    private JTextField usernameField;
-    private JPasswordField passwordField;
-    private JComboBox<String> roleComboBox;
 
     public AddUserModal(Frame parent, boolean modal) {
         super(parent, modal);
-        initComponents();
-    }
-
-    private void initComponents() {
         setTitle("Add User");
-        setLayout(new GridLayout(5, 2, 10, 10));
+        setSize(300, 300);
+        panel = new JPanel(new GridLayout(5, 2, 10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        setContentPane(panel);
+        setLocationRelativeTo(parent);
 
         JLabel usernameLabel = new JLabel("Username:");
         JLabel passwordLabel = new JLabel("Password:");
@@ -28,7 +30,7 @@ public class AddUserModal extends JDialog {
 
         usernameField = new JTextField();
         passwordField = new JPasswordField();
-        roleComboBox = new JComboBox<>(new String[]{"Admin", "Librarian", "User"});
+        roleComboBox = new JComboBox<>(new String[]{"Admin", "Librarian", "User", "Deleted"});
 
         JButton saveButton = new JButton("Save");
         JButton cancelButton = new JButton("Cancel");
@@ -49,17 +51,14 @@ public class AddUserModal extends JDialog {
             }
         });
 
-        add(usernameLabel);
-        add(usernameField);
-        add(passwordLabel);
-        add(passwordField);
-        add(roleLabel);
-        add(roleComboBox);
-        add(saveButton);
-        add(cancelButton);
-
-        pack();
-        setLocationRelativeTo(null);
+        panel.add(usernameLabel);
+        panel.add(usernameField);
+        panel.add(passwordLabel);
+        panel.add(passwordField);
+        panel.add(roleLabel);
+        panel.add(roleComboBox);
+        panel.add(saveButton);
+        panel.add(cancelButton);
     }
 
     public boolean isSaved() {

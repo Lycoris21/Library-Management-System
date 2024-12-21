@@ -219,7 +219,7 @@ public class AdminUserManagement extends JFrame {
 
         add(nav);
         add(searchField);
-        add(booksLabel);
+        add(usersLabel);
 
     }
 
@@ -270,7 +270,7 @@ public class AdminUserManagement extends JFrame {
 
         if (addUserDialog.isSaved()) {
             User user = addUserDialog.getUser();
-            boolean isInserted = userC.addUser(user);
+            boolean isInserted = userC.createUser(user);
             if (isInserted) {
                 JOptionPane.showMessageDialog(this, "User added successfully!");
                 populateTable();
