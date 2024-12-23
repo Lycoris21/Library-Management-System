@@ -3,16 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Lycoris/Documents/GitHub/Library-Management-System/src/view/AdminDashboard.java</file>
+            <file>file:/C:/Users/Lycoris/Documents/GitHub/Library-Management-System/src/model/User.java</file>
+            <file>file:/C:/Users/Lycoris/Documents/GitHub/Library-Management-System/src/view/AdminRecords.java</file>
             <file>file:/C:/Users/Lycoris/Documents/GitHub/Library-Management-System/src/controller/BookController.java</file>
-            <file>file:/C:/Users/Lycoris/Documents/GitHub/Library-Management-System/src/model/Book.java</file>
-            <file>file:/C:/Users/Lycoris/Documents/GitHub/Library-Management-System/src/controller/BorrowingController.java</file>
-            <file>file:/C:/Users/Lycoris/Documents/GitHub/Library-Management-System/src/view/EditBookModal.java</file>
-            <file>file:/C:/Users/Lycoris/Documents/GitHub/Library-Management-System/src/view/AdminBookManagement.java</file>
-            <file>file:/C:/Users/Lycoris/Documents/GitHub/Library-Management-System/src/view/AddUserModal.java</file>
-            <file>file:/C:/Users/Lycoris/Documents/GitHub/Library-Management-System/src/view/AddBookModal.java</file>
-            <file>file:/C:/Users/Lycoris/Documents/GitHub/Library-Management-System/src/view/AdminUserManagement.java</file>
             <file>file:/C:/Users/Lycoris/Documents/GitHub/Library-Management-System/src/controller/UserController.java</file>
+            <file>file:/C:/Users/Lycoris/Documents/GitHub/Library-Management-System/src/view/AdminUserManagement.java</file>
         </group>
     </open-files>
 </project-private>

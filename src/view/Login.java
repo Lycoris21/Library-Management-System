@@ -5,7 +5,10 @@ import javax.swing.*;
 import controller.UserController;
 import java.awt.*;
 import model.User;
+import view.Register;
 import utility.Database;
+import utility.PasswordHasher;
+import utility.UserSession;
 
 /**
  * 
@@ -15,35 +18,63 @@ public class Login extends javax.swing.JFrame {
     
     Database db = new Database();
     UserController userC = new UserController(db);
-    User user = new User();
+    User user;
     
 
     public Login() {
         initComponents();
     }
     
-    private void loginActionPerformed(java.awt.event.ActionEvent evt) {  
-    // TODO add your handling code here: 
-    String username = uname.getText();
-    String password = pass.getText();
+    private void loginActionPerformed(java.awt.event.ActionEvent evt) {
+        String username = uname.getText();
+        String password = new String(pass.getPassword());
 
-    if (validateLogin(username, password)) {
-        // Login successful, proceed to main application
-        JOptionPane.showMessageDialog(this, "Login successful!");
-        String role = userC.getRole(username);
-        if (role == null) {
-            new ReaderDashboard().setVisible(true);
-        } else {
-            switch (role.toLowerCase()) {
-                case "admin" -> new AdminDashboard().setVisible(true);
-                case "librarian" -> new LibrarianDashboard().setVisible(true);
-                default -> new ReaderDashboard().setVisible(true);
+        user = userC.getUserByUsername(username);
+
+        if (user != null && user.getPassword() != null) {
+            // Try different authentication methods
+            boolean isAuthenticated = false;
+            String hashedInputPassword = PasswordHasher.hashPassword(password);
+
+            // Check if password matches stored password (either plain or hashed)
+            if (password.equals(user.getPassword()) || 
+                hashedInputPassword.equals(user.getPassword())) {
+                isAuthenticated = true;
+
+                // If the password was plain text, update to hashed
+                if (password.equals(user.getPassword())) {
+                    user.setPassword(hashedInputPassword);
+                    userC.updateUserPassword(user.getUserId(), hashedInputPassword);
+                }
             }
-        }
-        setVisible(false);
+
+            if (isAuthenticated) {
+                // Set the current user in the session
+                UserSession.getInstance().setCurrentUser(user);
+
+                JOptionPane.showMessageDialog(this, "Login successful! Welcome, " + user.getUsername() + "!");
+                String role = user.getRole();
+
+                // Navigate based on role
+                if (role == null) {
+                    new ReaderDashboard().setVisible(true);
+                } else {
+                    switch (role.toLowerCase()) {
+                        case "admin" ->
+                            new AdminDashboard().setVisible(true);
+                        case "librarian" ->
+                            new LibrarianDashboard().setVisible(true);
+                        default ->
+                            new ReaderDashboard().setVisible(true);
+                    }
+                }
+                setVisible(false);
+            } else {
+                JOptionPane.showMessageDialog(this, "Invalid username or password");
+            }
         } else {
             JOptionPane.showMessageDialog(this, "Invalid username or password");
-        }      
+        }
     }
     
     private void regMouseClicked(java.awt.event.MouseEvent evt) {                                      
@@ -53,8 +84,6 @@ public class Login extends javax.swing.JFrame {
     } 
     
     public static void main(String[] args) {
-        
-        
 
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {

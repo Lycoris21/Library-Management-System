@@ -8,6 +8,7 @@ import controller.BookController;
 import controller.BorrowingController;
 import controller.UserController;
 import utility.Database;
+import utility.UserSession;
 
 /**
  *
@@ -98,7 +99,7 @@ public class LibrarianBookListings extends JFrame {
         });
 
         thistory = new JLabel();
-        thistory.setText("Transaction History");
+        thistory.setText("Records");
         thistory.setBounds(40, 380, 300, 50);
         thistory.setFont(new Font("Serif", Font.PLAIN, 25));
         thistory.setForeground(Color.WHITE);
@@ -109,7 +110,7 @@ public class LibrarianBookListings extends JFrame {
         });
 
         username = new JLabel();
-        username.setText("Kwesten Ann");
+        username.setText(UserSession.getInstance().getUsername());
         username.setBounds(40, 600, 200, 200);
         username.setFont(new Font("Serif", Font.PLAIN, 25));
         username.setForeground(Color.WHITE);

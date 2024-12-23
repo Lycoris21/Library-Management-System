@@ -9,6 +9,7 @@ import controller.UserController;
 import model.Book;
 import model.Borrowing;
 import utility.Database;
+import utility.UserSession;
 
 public class ReaderDashboard extends JFrame {
 
@@ -31,8 +32,14 @@ public class ReaderDashboard extends JFrame {
         setVisible(false);
     }
     
+    private void reservehMouseClicked(java.awt.event.MouseEvent evt) {                                     
+        ReaderReservations rr = new ReaderReservations();
+        rr.setVisible(true);
+        setVisible(false);
+    }
+    
     private void borrowhMouseClicked(java.awt.event.MouseEvent evt) {                                     
-        ReaderBorrowHistory rbh = new ReaderBorrowHistory();
+        ReaderBorrowing rbh = new ReaderBorrowing();
         rbh.setVisible(true);
         setVisible(false);
     } 
@@ -83,9 +90,20 @@ public class ReaderDashboard extends JFrame {
             }
         });
         
+        reserveh = new JLabel();
+        reserveh.setText("Reservations");
+        reserveh.setBounds(40, 320, 300, 50);
+        reserveh.setFont(new Font("Serif", Font.PLAIN, 25));
+        reserveh.setForeground(Color.WHITE);
+        reserveh.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                reservehMouseClicked(evt);
+            }
+        });
+        
         borrowh = new JLabel();
-        borrowh.setText("Borrow History");
-        borrowh.setBounds(40, 320, 300, 50);
+        borrowh.setText("Borrowing");
+        borrowh.setBounds(40, 380, 300, 50);
         borrowh.setFont(new Font("Serif", Font.PLAIN, 25));
         borrowh.setForeground(Color.WHITE);
         borrowh.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -96,7 +114,7 @@ public class ReaderDashboard extends JFrame {
         
         profile = new JLabel();
         profile.setText("Profile Page");
-        profile.setBounds(40, 380, 300, 50);
+        profile.setBounds(40, 440, 300, 50);
         profile.setFont(new Font("Serif", Font.PLAIN, 25));
         profile.setForeground(Color.WHITE);
         profile.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -108,7 +126,7 @@ public class ReaderDashboard extends JFrame {
         ImageIcon pp = new ImageIcon("src/images/jingliu.jpg");
         
         username = new JLabel();
-        username.setText("Kwesten Ann");
+        username.setText(UserSession.getInstance().getUsername());
         username.setBounds(40, 600, 200, 200);
         username.setFont(new Font("Serif", Font.PLAIN, 25));
         username.setForeground(Color.WHITE);
@@ -125,6 +143,7 @@ public class ReaderDashboard extends JFrame {
         nav.add(dash);
         nav.add(home);
         nav.add(browse);
+        nav.add(reserveh);
         nav.add(borrowh);
         nav.add(profile);
         nav.add(username);
@@ -147,6 +166,7 @@ public class ReaderDashboard extends JFrame {
     private javax.swing.JLabel dash;
     private javax.swing.JLabel home;
     private javax.swing.JLabel browse;
+    private javax.swing.JLabel reserveh;
     private javax.swing.JLabel borrowh;
     private javax.swing.JLabel profile;
     private javax.swing.JLabel username;

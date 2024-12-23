@@ -8,9 +8,10 @@ public class Borrowing{
     private int userId;
     private int bookId;
     private Timestamp borrowDate;
-    private Timestamp returnDate;
+    private Timestamp supposedReturnDate;
     private Timestamp actualReturnDate;
     private String status;
+    private Timestamp updatedAt;
     
     private String bookTitle; //added coz izza bijj
     
@@ -42,11 +43,11 @@ public class Borrowing{
         this.borrowDate = borrowDate;
     }
 
-    public Timestamp getReturnDate() {
-        return returnDate;
+    public Timestamp getSupposedReturnDate() {
+        return supposedReturnDate;
     }
-    public void setReturnDate(Timestamp returnDate) {
-        this.returnDate = returnDate;
+    public void setSupposedReturnDate(Timestamp supposedReturnDate) {
+        this.supposedReturnDate = supposedReturnDate;
     }
 
     public Timestamp getActualReturnDate() {
@@ -61,6 +62,13 @@ public class Borrowing{
     }
     public void setStatus(String status) {
         this.status = status;
+    }
+    
+    public Timestamp getUpdatedAt() {
+        return updatedAt;
+    }
+    public void setUpdatedAt(Timestamp updatedAt) {
+        this.updatedAt = updatedAt;
     }
     
     public String getBookTitle() {

@@ -6,9 +6,12 @@ import controller.UserController;
 import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
+import java.util.List;
+import java.util.Map;
 import model.Book;
 import model.User;
 import utility.Database;
+import utility.UserSession;
 
 public class AdminUserManagement extends JFrame {
     
@@ -35,6 +38,7 @@ public class AdminUserManagement extends JFrame {
     
     public AdminUserManagement() {
         initComponents();
+        populateTable();
     }
     
     private void homeMouseClicked(java.awt.event.MouseEvent evt) {                                     
@@ -112,7 +116,7 @@ public class AdminUserManagement extends JFrame {
         ImageIcon pp = new ImageIcon("src/images/jingliu.jpg");
         
         username = new JLabel();
-        username.setText("Kwesten Ann");
+        username.setText(UserSession.getInstance().getUsername());
         username.setBounds(40, 600, 200, 200);
         username.setFont(new Font("Serif", Font.PLAIN, 25));
         username.setForeground(Color.WHITE);
@@ -146,7 +150,7 @@ public class AdminUserManagement extends JFrame {
         searchButton.setBounds(1140, 60, 100, 30);
         searchButton.setForeground(Color.WHITE);
         searchButton.setBackground(new Color(0x316FA2));
-        searchButton.addActionListener(evt -> searchBooks());
+        searchButton.addActionListener(evt -> searchUsers());
         add(searchButton);
 
         addUserButton = new JButton("Add User");
@@ -161,11 +165,11 @@ public class AdminUserManagement extends JFrame {
         usersLabel.setFont(new Font("Serif", Font.BOLD, 30));
         usersLabel.setBounds(360, 120, 200, 30);
 
-        String[] columns = {"ID", "Title", "Author", "Category", "ISBN", "Publisher", "Year", "Quantity", "Status", "Edit", "Delete"};
+        String[] columns = {"ID", "Username", "User Type", "Currently Borrowed", "Overdues", "Total Borrowed", "Edit", "Delete"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 9 || column == 10;
+                return column == 6 || column == 7;
             }
         };
         table = new JTable(tableModel);
@@ -186,22 +190,19 @@ public class AdminUserManagement extends JFrame {
         // Set preferred width for each column
         TableColumnModel columnModel = table.getColumnModel();
         columnModel.getColumn(0).setPreferredWidth(50);   // ID
-        columnModel.getColumn(1).setPreferredWidth(200); // Title
-        columnModel.getColumn(2).setPreferredWidth(150); // Author
-        columnModel.getColumn(3).setPreferredWidth(100); // Category
-        columnModel.getColumn(4).setPreferredWidth(110); // ISBN
-        columnModel.getColumn(5).setPreferredWidth(190); // Publisher
-        columnModel.getColumn(6).setPreferredWidth(70);  // Year
-        columnModel.getColumn(7).setPreferredWidth(80);  // Quantity
-        columnModel.getColumn(8).setPreferredWidth(100); // Status
-        columnModel.getColumn(9).setPreferredWidth(80);  // Edit
-        columnModel.getColumn(10).setPreferredWidth(80); // Delete
+        columnModel.getColumn(1).setPreferredWidth(200); // Username
+        columnModel.getColumn(2).setPreferredWidth(150); // User Type
+        columnModel.getColumn(3).setPreferredWidth(150); // Currently Borrowed
+        columnModel.getColumn(4).setPreferredWidth(110); // Overdues
+        columnModel.getColumn(5).setPreferredWidth(150); // Total Borrowed
+        columnModel.getColumn(6).setPreferredWidth(80);  // Edit
+        columnModel.getColumn(7).setPreferredWidth(81); // Delete
 
-        TableColumn editColumn = table.getColumnModel().getColumn(9);
+        TableColumn editColumn = table.getColumnModel().getColumn(6);
         editColumn.setCellRenderer(new ButtonRenderer("Edit"));
         editColumn.setCellEditor(new ButtonEditor("Edit"));
 
-        TableColumn deleteColumn = table.getColumnModel().getColumn(10);
+        TableColumn deleteColumn = table.getColumnModel().getColumn(7);
         deleteColumn.setCellRenderer(new ButtonRenderer("Delete"));
         deleteColumn.setCellEditor(new ButtonEditor("Delete"));
 
@@ -224,43 +225,50 @@ public class AdminUserManagement extends JFrame {
     }
 
     private void populateTable() {
-        tableModel.setRowCount(0);
-        java.util.List<Book> books = bookC.getAllBooks();
-        for (Book book : books) {
+        tableModel.setRowCount(0); // Clear existing rows
+        List<Map<String, Object>> usersWithBooksCount = borrowC.getAllUsersWithBorrowedBooksCount();
+
+        // Check if the list is empty and handle accordingly
+        if (usersWithBooksCount.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No users found.", "Information", JOptionPane.INFORMATION_MESSAGE);
+        }
+
+        // Populate the table with user data
+        for (Map<String, Object> user : usersWithBooksCount) {
             tableModel.addRow(new Object[]{
-                book.getBookId(),
-                book.getTitle(),
-                book.getAuthor(),
-                book.getCategory(),
-                book.getIsbn(),
-                book.getPublisher(),
-                book.getPublishedYear(),
-                book.getQuantity(),
-                book.getStatus(),
+                user.get("userId"),
+                user.get("username"),
+                user.get("role"),
+                user.get("currentlyBorrowedCount"), // Display the count of currently borrowed books
+                user.get("overdueCount"), // Display the count of overdue books
+                user.get("totalBorrowedCount"), // Display the total count of borrowed books
                 "Edit",
                 "Delete"
             });
         }
     }
 
-    private void searchBooks() {
+    private void searchUsers() {
         String query = searchField.getText().trim();
-        java.util.List<Book> filteredBooks = bookC.searchBooks(query);
-        tableModel.setRowCount(0);
-        for (Book book : filteredBooks) {
-            tableModel.addRow(new Object[]{
-                book.getBookId(),
-                book.getTitle(),
-                book.getAuthor(),
-                book.getCategory(),
-                book.getIsbn(),
-                book.getPublisher(),
-                book.getPublishedYear(),
-                book.getQuantity(),
-                book.getStatus(),
-                "Edit",
-                "Delete"
-            });
+        List<Map<String, Object>> filteredUsers = userC.searchUsers(query);
+        tableModel.setRowCount(0); // Clear existing rows
+
+        if (filteredUsers.isEmpty()) {
+            // Optionally, you can show a message if no users are found
+            JOptionPane.showMessageDialog(this, "No users found matching the search criteria.", "Information", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            for (Map<String, Object> user : filteredUsers) {
+                tableModel.addRow(new Object[]{
+                    user.get("userId"),
+                    user.get("username"),
+                    user.get("role"),
+                    user.get("totalBorrowedCount"), // Display the total count of borrowed books
+                    user.get("currentlyBorrowedCount"), // Display the count of currently borrowed books
+                    user.get("overdueCount"), // Display the count of overdue books
+                    "Edit",
+                    "Delete"
+                });
+            }
         }
     }
 
@@ -337,50 +345,49 @@ public class AdminUserManagement extends JFrame {
         private void handleAction() {
             if (action.equals("Edit")) {
                 try {
-                    // Retrieve the selected book details
-                    int bookId = (int) table.getValueAt(row, 0);
-                    Book book = bookC.getBookById(bookId);
+                    // Retrieve the selected user details
+                    int userId = (int) table.getValueAt(row, 0);
+                    User user = userC.getUserById(userId);
 
-                    // Open the EditBookModal
+                    // Open the EditUserModal
                     Frame frame = (Frame) SwingUtilities.getWindowAncestor(table);
-                    EditBookModal editBookDialog = new EditBookModal(frame, true, book);
-                    editBookDialog.setLocationRelativeTo(frame);
-                    editBookDialog.setVisible(true);
+                    EditUserModal editUserDialog = new EditUserModal(frame, true, user);
+                    editUserDialog.setLocationRelativeTo(frame);
+                    editUserDialog.setVisible(true);
 
-                    // If the book is updated, refresh the table
-                    if (editBookDialog.isSaved()) {
-                        Book updatedBook = editBookDialog.getBook();
-                        boolean isUpdated = bookC.updateBook(updatedBook);
+                    // If the user is updated, refresh the table
+                    if (editUserDialog.isSaved()) {
+                        User updatedUser = editUserDialog.getUser();
+                        boolean isUpdated = userC.updateUser(updatedUser);
                         if (isUpdated) {
-                            JOptionPane.showMessageDialog(frame, "Book updated successfully!");
+                            JOptionPane.showMessageDialog(frame, "User updated successfully!");
                             populateTable();
                         } else {
-                            JOptionPane.showMessageDialog(frame, "Failed to update book!", "Error", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(frame, "Failed to update user!", "Error", JOptionPane.ERROR_MESSAGE);
                         }
                     }
                 } catch (Exception e) {
-                    JOptionPane.showMessageDialog(null, "An error occurred while editing the book: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "An error occurred while editing the user: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
             } else if (action.equals("Delete")) {
                 try {
 
                     stopCellEditing();
 
-                    int bookId = (int) tableModel.getValueAt(row, 0);
-                    int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this book?", "Delete Confirmation", JOptionPane.YES_NO_OPTION);
+                    int userId = (int) tableModel.getValueAt(row, 0);
+                    int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this User?", "Delete Confirmation", JOptionPane.YES_NO_OPTION);
 
                     if (confirm == JOptionPane.YES_OPTION) {
-                        boolean isDeleted = bookC.deleteBook(bookId);
+                        boolean isDeleted = userC.deleteUser(userId);
                         if (isDeleted) {
-                            JOptionPane.showMessageDialog(null, "Book deleted successfully!");
-//                            tableModel.removeRow(row);
+                            JOptionPane.showMessageDialog(null, "User deleted successfully!");
                             populateTable();
                         } else {
-                            JOptionPane.showMessageDialog(null, "Failed to delete book!", "Error", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(null, "Failed to delete user!", "Error", JOptionPane.ERROR_MESSAGE);
                         }
                     }
                 } catch (Exception e) {
-                    JOptionPane.showMessageDialog(null, "An error occurred while deleting the book: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "An error occurred while deleting the user: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
         }

@@ -18,8 +18,8 @@ public class AddUserModal extends JDialog {
     public AddUserModal(Frame parent, boolean modal) {
         super(parent, modal);
         setTitle("Add User");
-        setSize(300, 300);
-        panel = new JPanel(new GridLayout(5, 2, 10, 10));
+        setSize(350, 250);
+        panel = new JPanel(new GridLayout(4, 2, 10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         setContentPane(panel);
         setLocationRelativeTo(parent);
@@ -30,7 +30,7 @@ public class AddUserModal extends JDialog {
 
         usernameField = new JTextField();
         passwordField = new JPasswordField();
-        roleComboBox = new JComboBox<>(new String[]{"Admin", "Librarian", "User", "Deleted"});
+        roleComboBox = new JComboBox<>(new String[]{"Reader", "Librarian", "Admin", "Deleted"});
 
         JButton saveButton = new JButton("Save");
         JButton cancelButton = new JButton("Cancel");

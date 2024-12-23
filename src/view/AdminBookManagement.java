@@ -9,6 +9,7 @@ import java.awt.*;
 import java.util.List;
 import model.Book;
 import utility.Database;
+import utility.UserSession;
 
 public class AdminBookManagement extends JFrame {
 
@@ -113,10 +114,10 @@ public class AdminBookManagement extends JFrame {
             }
         });
 
-        ImageIcon pp = new ImageIcon("src/images/jingliu.jpg");
+        
 
         username = new JLabel();
-        username.setText("Kwesten Ann");
+        username.setText(UserSession.getInstance().getUsername());
         username.setBounds(40, 600, 200, 200);
         username.setFont(new Font("Serif", Font.PLAIN, 25));
         username.setForeground(Color.WHITE);
@@ -199,7 +200,7 @@ public class AdminBookManagement extends JFrame {
         columnModel.getColumn(7).setPreferredWidth(80);  // Quantity
         columnModel.getColumn(8).setPreferredWidth(100); // Status
         columnModel.getColumn(9).setPreferredWidth(80);  // Edit
-        columnModel.getColumn(10).setPreferredWidth(80); // Delete
+        columnModel.getColumn(10).setPreferredWidth(81); // Delete
 
         TableColumn editColumn = table.getColumnModel().getColumn(9);
         editColumn.setCellRenderer(new ButtonRenderer("Edit"));
@@ -375,7 +376,6 @@ public class AdminBookManagement extends JFrame {
                         boolean isDeleted = bookC.deleteBook(bookId);
                         if (isDeleted) {
                             JOptionPane.showMessageDialog(null, "Book deleted successfully!");
-//                            tableModel.removeRow(row);
                             populateTable();
                         } else {
                             JOptionPane.showMessageDialog(null, "Failed to delete book!", "Error", JOptionPane.ERROR_MESSAGE);

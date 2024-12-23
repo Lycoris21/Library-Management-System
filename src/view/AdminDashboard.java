@@ -6,6 +6,7 @@ import controller.BookController;
 import controller.BorrowingController;
 import controller.UserController;
 import utility.Database;
+import utility.UserSession;
 
 /**
  * 
@@ -111,7 +112,7 @@ public class AdminDashboard extends javax.swing.JFrame{
         ImageIcon pp = new ImageIcon("src/images/jingliu.jpg");
         
         username = new JLabel();
-        username.setText("Kwesten Ann");
+        username.setText(UserSession.getInstance().getUsername());
         username.setBounds(40, 600, 200, 200);
         username.setFont(new Font("Serif", Font.PLAIN, 25));
         username.setForeground(Color.WHITE);
@@ -186,7 +187,7 @@ public class AdminDashboard extends javax.swing.JFrame{
         
         
         //BOX4
-        borrowl = new JLabel("<html><div style='text-align: center'>CURRENTLY BORROWING COUNT</div></html>", SwingConstants.CENTER);
+        borrowl = new JLabel("<html><div style='text-align: center'>BORROWING COUNT</div></html>", SwingConstants.CENTER);
 //        borrowl.setPreferredSize(new Dimension(120, 60)); // Set width and height
 //        borrowl.setSize(borrowl.getPreferredSize());
         borrowl.setFont(new Font("Serif", Font.BOLD, 25));

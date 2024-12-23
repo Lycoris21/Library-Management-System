@@ -13,7 +13,7 @@ public class AddBookModal extends JDialog {
     private final JTextField publisherField;
     private final JSpinner publishedYearSpinner;
     private final JSpinner quantitySpinner;
-    private final JTextField statusField;
+    private final JComboBox<String> statusComboBox;
     private final JPanel panel;
     private boolean saved;
     private Book book;
@@ -58,9 +58,9 @@ public class AddBookModal extends JDialog {
         panel.add(quantitySpinner);
         
         panel.add(new JLabel("Status:"));
-        statusField = new JTextField();
-        panel.add(statusField);
-
+        statusComboBox = new JComboBox<>(new String[]{"Available", "Deleted"});
+        panel.add(statusComboBox);
+        
         // Buttons
         JButton saveButton = new JButton("Save");
         saveButton.addActionListener(e -> saveBook());
@@ -80,7 +80,7 @@ public class AddBookModal extends JDialog {
         String publisher = publisherField.getText().trim();
         int publishedYear = (int) publishedYearSpinner.getValue();
         int quantity = (int) quantitySpinner.getValue();
-        String status = statusField.getText().trim();
+        String status = (String) statusComboBox.getSelectedItem();
 
         if (title.isEmpty() || author.isEmpty() || category.isEmpty() || isbn.isEmpty() || publisher.isEmpty()) {
             JOptionPane.showMessageDialog(this, "All fields must be filled!", "Validation Error", JOptionPane.WARNING_MESSAGE);

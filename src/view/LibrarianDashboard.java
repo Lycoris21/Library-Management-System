@@ -6,9 +6,11 @@ import java.util.List;
 import controller.BookController;
 import controller.BorrowingController;
 import controller.UserController;
+import java.text.SimpleDateFormat;
 import model.Book;
 import model.Borrowing;
 import utility.Database;
+import utility.UserSession;
 
 public class LibrarianDashboard extends JFrame {
 
@@ -95,7 +97,7 @@ public class LibrarianDashboard extends JFrame {
         });
         
         thistory = new JLabel();
-        thistory.setText("Transaction History");
+        thistory.setText("Records");
         thistory.setBounds(40, 380, 300, 50);
         thistory.setFont(new Font("Serif", Font.PLAIN, 25));
         thistory.setForeground(Color.WHITE);
@@ -108,7 +110,7 @@ public class LibrarianDashboard extends JFrame {
         ImageIcon pp = new ImageIcon("src/images/jingliu.jpg");
         
         username = new JLabel();
-        username.setText("Kwesten Ann");
+        username.setText(UserSession.getInstance().getUsername());
         username.setBounds(40, 600, 200, 200);
         username.setFont(new Font("Serif", Font.PLAIN, 25));
         username.setForeground(Color.WHITE);
@@ -137,7 +139,7 @@ public class LibrarianDashboard extends JFrame {
         reservationsl.setFont(new Font("Serif", Font.BOLD, 25));
         reservationsl.setForeground(Color.WHITE);
         
-        reservationsc = new JLabel(""+bookC.getCurrentlyOverdueCount(), SwingConstants.CENTER);
+        reservationsc = new JLabel(""+bookC.getCurrentlyReservedCount(), SwingConstants.CENTER);
         reservationsc.setFont(new Font("Serif", Font.BOLD, 40));
         reservationsc.setForeground(Color.WHITE);
         
@@ -189,15 +191,203 @@ public class LibrarianDashboard extends JFrame {
         counts.add(box2);
         counts.add(box3);
         
-//        top10 = new JPanel();
-//        top10.setBounds(350,50,1100,500);
-//        top10.setBackground(null);
-//        top10.setLayout(new GridLayout(1,3,50,70));
-//        
-//        top10.add(box1);
-//        top10.add(box2);
-//        top10.add(box3);
+        top10 = new JPanel();
+        top10.setBounds(350,230,1100,500);
+        top10.setBackground(null);
+        top10.setLayout(new GridLayout(1,3,50,70));
+
+        // Most Borrowed Books Panel
+        box4 = new JPanel();
+        box4.setBounds(350, 250, 1100, 500);
+        box4.setBackground(Color.decode("#D1D5DB"));
+        box4.setLayout(new BoxLayout(box4, BoxLayout.Y_AXIS));
+
+        JLabel box4title = new JLabel("Most Borrowed Books");
+        box4title.setFont(new Font("Serif", Font.BOLD, 24));
+        box4title.setAlignmentX(Component.CENTER_ALIGNMENT);
+        box4title.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
+        box4.add(box4title);
+
+// Get most borrowed books from BookController
+        List<Book> mostBorrowedBooks = bookC.getMostBorrowedBooks();
+
+        if (mostBorrowedBooks.isEmpty()) {
+            // Display a message if no books are found
+            JLabel noBooksLabel = new JLabel("No books have been borrowed yet");
+            noBooksLabel.setForeground(Color.DARK_GRAY);
+            noBooksLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            box4.add(noBooksLabel);
+        } else {
+            for (int i = 0; i < mostBorrowedBooks.size(); i++) {
+                Book book = mostBorrowedBooks.get(i);
+
+                box4bookPanel = new JPanel();
+                box4bookPanel.setBackground(Color.decode("#1E3A8A"));
+                box4bookPanel.setLayout(new BorderLayout(10, 0)); // Add horizontal gap of 10 pixels
+
+                // Rank Label
+                JLabel rankLabel = new JLabel(String.valueOf(i + 1));
+                rankLabel.setForeground(Color.WHITE);
+                rankLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
+                rankLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 5)); // Add left and right padding
+                box4bookPanel.add(rankLabel, BorderLayout.WEST);
+
+                // Book Title Label
+                JLabel titleLabel = new JLabel(
+                        book.getTitle() != null ? book.getTitle() : "Unknown Title"
+                );
+                titleLabel.setForeground(Color.WHITE);
+                titleLabel.setFont(new Font("SansSerif", Font.PLAIN, 18));
+                box4bookPanel.add(titleLabel, BorderLayout.CENTER);
+
+                // Category Label
+                JLabel categoryLabel = new JLabel(
+                        book.getCategory() != null ? book.getCategory() : "Uncategorized"
+                );
+                categoryLabel.setForeground(Color.WHITE);
+                categoryLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
+                categoryLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 10)); // Add left and right padding
+                box4bookPanel.add(categoryLabel, BorderLayout.EAST);
+
+                // Set maximum size and add some vertical padding
+                box4bookPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+                box4bookPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0)); // Vertical padding
+
+                box4.add(box4bookPanel);
+                box4.add(Box.createRigidArea(new Dimension(0, 10)));
+            }
+        }
         
+        
+        
+//=======   BOX 5   ===================================        
+        // Newest Books Panel
+        box5 = new JPanel();
+        box5.setBounds(350, 250, 1100, 500);
+        box5.setBackground(Color.decode("#D1D5DB"));
+        box5.setLayout(new BoxLayout(box5, BoxLayout.Y_AXIS));
+
+        JLabel box5titleLabel = new JLabel("Newest Books");
+        box5titleLabel.setFont(new Font("Serif", Font.BOLD, 24));
+        box5titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        box5titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
+        box5.add(box5titleLabel);
+
+// Get newest books from BookController
+        List<Book> newestBooks = bookC.getNewestBooks();
+
+        if (newestBooks.isEmpty()) {
+            // Display a message if no books are found
+            JLabel noBooksLabel = new JLabel("No new books have been added");
+            noBooksLabel.setForeground(Color.DARK_GRAY);
+            noBooksLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            box5.add(noBooksLabel);
+        } else {
+            for (int i = 0; i < newestBooks.size(); i++) {
+                Book book = newestBooks.get(i);
+
+                box5bookPanel = new JPanel();
+                box5bookPanel.setBackground(Color.decode("#1E3A8A"));
+                box5bookPanel.setLayout(new BorderLayout());
+                box5bookPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+                box5bookPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+                // Rank Label
+                JLabel rankLabel = new JLabel(String.valueOf(i + 1));
+                rankLabel.setForeground(Color.WHITE);
+                rankLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
+                rankLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 5));
+                box5bookPanel.add(rankLabel, BorderLayout.WEST);
+
+                // Book Title Label
+                JLabel titleLabel = new JLabel(
+                        book.getTitle() != null ? book.getTitle() : "Unknown Title"
+                );
+                titleLabel.setForeground(Color.WHITE);
+                titleLabel.setFont(new Font("SansSerif", Font.PLAIN, 18));
+                box5bookPanel.add(titleLabel, BorderLayout.CENTER);
+
+                // Created Date Label
+                JLabel categoryLabel = new JLabel(
+                        book.getCategory() != null ? book.getCategory() : "Uncategorized"
+                );
+                categoryLabel.setForeground(Color.WHITE);
+                categoryLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
+                categoryLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 10));
+                box5bookPanel.add(categoryLabel, BorderLayout.EAST);
+
+                box5.add(box5bookPanel);
+                box5.add(Box.createRigidArea(new Dimension(0, 10)));
+            }
+        }
+        
+        
+        
+//=======   BOX 6   ===================================
+        box6 = new JPanel();
+        box6.setBounds(350, 250, 1100, 500); // Set specific bounds
+        box6.setBackground(Color.decode("#D1D5DB"));
+        box6.setLayout(new BoxLayout(box6, BoxLayout.Y_AXIS));
+
+        JLabel box6titleLabel = new JLabel("Latest Transactions");
+        box6titleLabel.setFont(new Font("Serif", Font.BOLD, 24));
+        box6titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        box6titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
+        box6.add(box6titleLabel);
+
+// Get latest transactions from BorrowingController
+        List<Borrowing> latestTrans = borrowC.getLatestTransactions();
+
+        if (latestTrans.isEmpty()) {
+            // Display a message if no transactions are found
+            JLabel noTransactionsLabel = new JLabel("No recent transactions");
+            noTransactionsLabel.setForeground(Color.DARK_GRAY);
+            noTransactionsLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            box6.add(noTransactionsLabel);
+        } else {
+            for (int i = 0; i < latestTrans.size(); i++) {
+                Borrowing borrow = latestTrans.get(i);
+
+                box6recordPanel = new JPanel();
+                box6recordPanel.setBackground(Color.decode("#1E3A8A"));
+                box6recordPanel.setLayout(new BorderLayout());
+                box6recordPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+                box6recordPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+                // Status Label
+                JLabel statusLabel = new JLabel(borrow.getStatus());
+                statusLabel.setForeground(Color.WHITE);
+                statusLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
+                statusLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 5));
+                box6recordPanel.add(statusLabel, BorderLayout.WEST);
+
+                // Book Title Label
+                JLabel bookTitleLabel = new JLabel(
+                        borrow.getBookTitle() != null ? borrow.getBookTitle() : "Unknown Book"
+                );
+                bookTitleLabel.setForeground(Color.WHITE);
+                bookTitleLabel.setFont(new Font("SansSerif", Font.PLAIN, 18));
+                box6recordPanel.add(bookTitleLabel, BorderLayout.CENTER);
+
+                // Timestamp Label
+                JLabel timestampLabel = new JLabel(
+                        borrow.getUpdatedAt() != null
+                        ? new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(borrow.getUpdatedAt())
+                        : "N/A"
+                );
+                timestampLabel.setForeground(Color.WHITE);
+                timestampLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
+                timestampLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 10));
+                box6recordPanel.add(timestampLabel, BorderLayout.EAST);
+
+                box6.add(box6recordPanel);
+                box6.add(Box.createRigidArea(new Dimension(0, 10)));
+            }
+        }
+        
+        top10.add(box4);
+        top10.add(box5);
+        top10.add(box6);
         
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1535,820);
@@ -209,7 +399,7 @@ public class LibrarianDashboard extends JFrame {
         
         add(nav);
         add(counts);
-        //add(top10);
+        add(top10);
     }
     
     private javax.swing.JPanel nav;
@@ -230,5 +420,11 @@ public class LibrarianDashboard extends JFrame {
     private javax.swing.JLabel overduec;
     private javax.swing.JPanel counts;
     private javax.swing.JPanel top10;
+    private javax.swing.JPanel box4;
+    private javax.swing.JPanel box4bookPanel;
+    private javax.swing.JPanel box5;
+    private javax.swing.JPanel box5bookPanel;
+    private javax.swing.JPanel box6;
+    private javax.swing.JPanel box6recordPanel;
     
 }

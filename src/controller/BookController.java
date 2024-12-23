@@ -94,7 +94,7 @@ public class BookController{
     }
 
     public boolean deleteBook(int bookId) {
-        String sql = "UPDATE books SET status = 'Deleted' WHERE book_id = ?";
+        String sql = "DELETE FROM books WHERE book_id = ?";
         try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql)) {
             pstmt.setInt(1, bookId);
             return pstmt.executeUpdate() > 0;
@@ -221,28 +221,31 @@ public class BookController{
     
     public List<Book> getMostBorrowedBooks() {
         List<Book> books = new ArrayList<>();
-        // SQL query to select top 10 most borrowed books based on borrow count
-        String sql = "SELECT b.book_id, b.title, b.author, b.category, b.isbn, b.publisher, b.published_year, b.quantity, b.status, b.created_at, b.updated_at, COUNT(br.book_id) AS borrow_count " +
-                     "FROM books b LEFT JOIN borrowings br ON b.book_id = br.book_id " +
-                     "GROUP BY b.book_id " +
-                     "ORDER BY borrow_count DESC " +
-                     "LIMIT 10";
+        String sql = """
+        SELECT TOP 10
+            b.book_id, 
+            b.title, 
+            b.category, 
+            b.author,
+            COUNT(br.book_id) AS borrow_count 
+        FROM 
+            books b
+        LEFT JOIN 
+            borrowing br ON b.book_id = br.book_id
+        GROUP BY 
+            b.book_id, b.title, b.category, b.author
+        ORDER BY 
+            borrow_count DESC
+    """;
 
-        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
+        try (Connection conn = db.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql); ResultSet rs = pstmt.executeQuery()) {
+
             while (rs.next()) {
                 Book book = new Book();
                 book.setBookId(rs.getInt("book_id"));
                 book.setTitle(rs.getString("title"));
-                book.setAuthor(rs.getString("author"));
                 book.setCategory(rs.getString("category"));
-                book.setIsbn(rs.getString("isbn"));
-                book.setPublisher(rs.getString("publisher"));
-                book.setPublishedYear(rs.getInt("published_year"));
-                book.setQuantity(rs.getInt("quantity"));
-                book.setStatus(rs.getString("status"));
-                book.setCreatedAt(rs.getTimestamp("created_at"));
-                book.setUpdatedAt(rs.getTimestamp("updated_at"));
+                book.setAuthor(rs.getString("author"));
                 books.add(book);
             }
         } catch (SQLException e) {
@@ -253,26 +256,30 @@ public class BookController{
     
     public List<Book> getNewestBooks() {
         List<Book> books = new ArrayList<>();
-        // SQL query to select top 10 newest books based on created_at
-        String sql = "SELECT book_id, title, author, category, isbn, publisher, published_year, quantity, status, created_at, updated_at "
-                + "FROM books "
-                + "ORDER BY created_at DESC "
-                + "LIMIT 10";
+        String sql = """
+        SELECT TOP 10
+            book_id, 
+            title, 
+            category, 
+            author, 
+            created_at
+        FROM 
+            books
+        WHERE 
+            status != 'Deleted'
+        ORDER BY 
+            created_at DESC
+    """;
 
-        try (PreparedStatement pstmt = db.getConnection().prepareStatement(sql); ResultSet rs = pstmt.executeQuery()) {
+        try (Connection conn = db.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql); ResultSet rs = pstmt.executeQuery()) {
+
             while (rs.next()) {
                 Book book = new Book();
                 book.setBookId(rs.getInt("book_id"));
                 book.setTitle(rs.getString("title"));
-                book.setAuthor(rs.getString("author"));
                 book.setCategory(rs.getString("category"));
-                book.setIsbn(rs.getString("isbn"));
-                book.setPublisher(rs.getString("publisher"));
-                book.setPublishedYear(rs.getInt("published_year"));
-                book.setQuantity(rs.getInt("quantity"));
-                book.setStatus(rs.getString("status"));
+                book.setAuthor(rs.getString("author"));
                 book.setCreatedAt(rs.getTimestamp("created_at"));
-                book.setUpdatedAt(rs.getTimestamp("updated_at"));
                 books.add(book);
             }
         } catch (SQLException e) {
