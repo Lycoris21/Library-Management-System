@@ -268,6 +268,7 @@ public class LibrarianOperationsManagement extends JFrame {
                 JOptionPane.showMessageDialog(dialog, "Borrowing created successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                 dialog.dispose();
                 populateTable(); // Refresh the tables
+                updateCounts();
             } else {
                 JOptionPane.showMessageDialog(dialog, "Failed to create borrowing.", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -317,8 +318,10 @@ public class LibrarianOperationsManagement extends JFrame {
         editColumn.setCellRenderer(new ButtonRenderer("More Details"));
         editColumn.setCellEditor(new ButtonEditor("More Details", table)); // Pass the table reference
     }
-
+    
     private void populateTable() {
+        reservationRecords = recordC.getReservationRecords("Pending");
+        borrowingRecords = recordC.getBorrowingRecords("Borrowed");
         reservationTableModel.setRowCount(0); // Clear existing rows
         borrowingTableModel.setRowCount(0); // Clear existing rows
 
@@ -339,6 +342,11 @@ public class LibrarianOperationsManagement extends JFrame {
                 "More Details"
             });
         }
+    }
+    
+    private void updateCounts() {
+        reservedLabel.setText("Reserved - " + bookC.getCurrentlyReservedCount());
+        borrowedLabel.setText("Borrowed - " + bookC.getCurrentlyBorrowingCount());
     }
 
     private void searchRecords() {
@@ -493,7 +501,7 @@ public class LibrarianOperationsManagement extends JFrame {
             super(parent, title, true);
             this.reservationId = reservationId; // Store the reservation ID
             setTitle("More Details");
-            panel = new JPanel(new GridLayout(details.length / 2 + 1, 2)); // Add an extra row for buttons
+            panel = new JPanel(new GridLayout(details.length / 2 + 1, 2)); // Add extra rows for buttons
             panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
             setContentPane(panel);
 
@@ -505,10 +513,11 @@ public class LibrarianOperationsManagement extends JFrame {
             // Add buttons for reservation actions
             JButton collectedButton = new JButton("Collected");
             collectedButton.addActionListener(e -> {
-                // Update the reservation status to "Collected" in the database
                 boolean success = recordC.updateReservationStatus(reservationId, "Collected");
                 if (success) {
                     JOptionPane.showMessageDialog(this, "Reservation status updated to 'Collected'.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    populateTable();
+                    updateCounts();
                     dispose(); // Close the dialog
                 } else {
                     JOptionPane.showMessageDialog(this, "Failed to update reservation status.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -518,10 +527,11 @@ public class LibrarianOperationsManagement extends JFrame {
 
             JButton voidButton = new JButton("Void");
             voidButton.addActionListener(e -> {
-                // Update the reservation status to "Void" in the database
                 boolean success = recordC.updateReservationStatus(reservationId, "Void");
                 if (success) {
                     JOptionPane.showMessageDialog(this, "Reservation status updated to 'Void'.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    populateTable();
+                    updateCounts();
                     dispose(); // Close the dialog
                 } else {
                     JOptionPane.showMessageDialog(this, "Failed to update reservation status.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -536,42 +546,43 @@ public class LibrarianOperationsManagement extends JFrame {
     }
     
     public class BorrowingDetailsDialog extends JDialog {
+    private final JPanel panel;
+    private final int borrowingId; // Store the borrowing ID for updates
 
-        private final JPanel panel;
-        private final int borrowingId; // Store the borrowing ID for updates
+    public BorrowingDetailsDialog(Frame parent, String title, String[] details, int borrowingId) {
+        super(parent, title, true);
+        this.borrowingId = borrowingId; // Store the borrowing ID
+        setTitle("More Details");
+        panel = new JPanel(new GridLayout(details.length / 2 + 1, 2)); // Add an extra row for buttons
+        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        setContentPane(panel);
 
-        public BorrowingDetailsDialog(Frame parent, String title, String[] details, int borrowingId) {
-            super(parent, title, true);
-            this.borrowingId = borrowingId; // Store the borrowing ID
-            setTitle("More Details");
-            panel = new JPanel(new GridLayout(details.length / 2 + 1, 2)); // Add an extra row for buttons
-            panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-            setContentPane(panel);
-
-            for (int i = 0; i < details.length; i += 2) {
-                panel.add(new JLabel(details[i])); // Label
-                panel.add(new JLabel(details[i + 1])); // Value
-            }
-
-            // Add button for returning the book
-            JButton returnedButton = new JButton("Returned");
-            returnedButton.addActionListener(e -> {
-                // Update the borrowing status to "Returned" in the database
-                boolean success = recordC.updateBorrowingStatus(borrowingId, "Returned");
-                if (success) {
-                    JOptionPane.showMessageDialog(this, "Borrowing status updated to 'Returned'.", "Success", JOptionPane.INFORMATION_MESSAGE);
-                    dispose(); // Close the dialog
-                } else {
-                    JOptionPane.showMessageDialog(this, "Failed to update borrowing status.", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            });
-            panel.add(returnedButton);
-
-            setSize(400, 300);
-            setLocationRelativeTo(parent);
-            setVisible(true);
+        for (int i = 0; i < details.length; i += 2) {
+            panel.add(new JLabel(details[i])); // Label
+            panel.add(new JLabel(details[i + 1])); // Value
         }
+
+        // Add button for returning the book
+        JButton returnedButton = new JButton("Returned");
+        
+        returnedButton.addActionListener(e -> {
+            boolean success = recordC.updateBorrowingStatus(borrowingId, "Returned");
+            if (success) {
+                JOptionPane.showMessageDialog(this, "Borrowing status updated to 'Returned'.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                populateTable();
+                updateCounts();
+                dispose(); // Close the dialog
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to update borrowing status.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        panel.add(returnedButton);
+
+        setSize(400, 300);
+        setLocationRelativeTo(parent);
+        setVisible(true);
     }
+}
     
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new LibrarianOperationsManagement().setVisible(true));
