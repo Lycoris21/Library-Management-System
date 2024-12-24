@@ -228,18 +228,22 @@ public class LibrarianOperationsManagement extends JFrame {
     
     private void openNewBorrowingDialog() {
         JDialog dialog = new JDialog(this, "New Borrowing", true);
-        dialog.setLayout(new GridLayout(3, 2));
+        dialog.setLayout(new BorderLayout()); // Use BorderLayout to center the panel
+
+        // Create a panel with GridLayout for the dialog
+        JPanel panel = new JPanel(new GridLayout(3, 2, 10, 10)); // 4 rows, 2 columns, with horizontal and vertical gaps
+        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15)); // Set the border for padding
 
         // Username field
         JTextField usernameField = new JTextField();
-        dialog.add(new JLabel("Username:"));
-        dialog.add(usernameField);
+        panel.add(new JLabel("Username:"));
+        panel.add(usernameField);
 
         // Book dropdown
         JComboBox<Book> bookDropdown = new JComboBox<>();
         populateBookDropdown(bookDropdown);
-        dialog.add(new JLabel("Book Title:"));
-        dialog.add(bookDropdown);
+        panel.add(new JLabel("Book Title:"));
+        panel.add(bookDropdown);
 
         // Add buttons
         JButton submitButton = new JButton("Submit");
@@ -268,7 +272,15 @@ public class LibrarianOperationsManagement extends JFrame {
                 JOptionPane.showMessageDialog(dialog, "Failed to create borrowing.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
-        dialog.add(submitButton);
+        panel.add(submitButton);
+
+        // Cancel button
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener(e -> dialog.dispose()); // Close the dialog
+        panel.add(cancelButton);
+
+        // Add the panel to the dialog
+        dialog.add(panel, BorderLayout.CENTER); // Center the panel in the dialog
 
         dialog.setSize(400, 200);
         dialog.setLocationRelativeTo(this);
@@ -278,7 +290,7 @@ public class LibrarianOperationsManagement extends JFrame {
     private void populateBookDropdown(JComboBox<Book> dropdown) {
         List<Book> availableBooks = bookC.getAvailableBooks(); // Get available books
         for (Book book : availableBooks) {
-            dropdown.addItem(book);
+            dropdown.addItem(book); // This will now call the overridden toString() method
         }
     }
 
@@ -382,106 +394,96 @@ public class LibrarianOperationsManagement extends JFrame {
 
     // Button Editor Class with Edit and Delete Functionality
     class ButtonEditor extends DefaultCellEditor {
-        private JButton button;
-        private String action;
-        private boolean clicked;
-        private JTable currentTable; // Store the reference to the table
+    private JButton button;
+    private String action;
+    private boolean clicked;
+    private JTable currentTable; // Store the reference to the table
 
-        public ButtonEditor(String action, JTable table) {
-            super(new JCheckBox());
-            this.action = action;
-            this.currentTable = table; // Store the table reference
-            button = new JButton();
-            button.setOpaque(true);
+    public ButtonEditor(String action, JTable table) {
+        super(new JCheckBox());
+        this.action = action;
+        this.currentTable = table; // Store the table reference
+        button = new JButton();
+        button.setOpaque(true);
 
-            button.addActionListener(evt -> handleAction());
-        }
+        button.addActionListener(evt -> handleAction());
+    }
 
-        @Override
-        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-            button.setText(action);
-            clicked = true;
-            return button;
-        }
+    @Override
+    public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+        button.setText(action);
+        clicked = true;
+        return button;
+    }
 
-        @Override
-        public Object getCellEditorValue() {
-            clicked = false;
-            return action;
-        }
+    @Override
+    public Object getCellEditorValue() {
+        clicked = false;
+        return action;
+    }
 
-        @Override
-        public boolean stopCellEditing() {
-            clicked = false;
-            return super.stopCellEditing();
-        }
+    @Override
+    public boolean stopCellEditing() {
+        clicked = false;
+        return super.stopCellEditing();
+    }
 
-        private void handleAction() {
-            stopCellEditing();
-            if (action.equals("More Details")) {
-                try {
-                    // Use the stored reference to the table
-                    int rowIndex = currentTable.getSelectedRow(); // Get the selected row index
-                    if (rowIndex < 0) {
-                        JOptionPane.showMessageDialog(LibrarianOperationsManagement.this, "Please select a record to view details.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return; // Exit if no row is selected
-                    }
-
-                    RecordController.RecordDisplay record;
-                    if (currentTable == reservationTable) {
-                        // Get the RecordDisplay object from the reservation table
-                        record = reservationRecords.get(rowIndex);
-                    } else {
-                        // Get the RecordDisplay object from the borrowing table
-                        record = borrowingRecords.get(rowIndex);
-                    }
-
-                    String status = record.getStatus(); // Get the status
-
-                    if (status.equals("Reserved") || status.equals("Voided")) {
-                        int reservationId = record.getReservationId(); // Get the reservation ID
-                        ReservationDetails reservationDetails = recordC.getReservationDetails(reservationId);
-                        if (reservationDetails != null) {
-                            String[] details = {
-                                "Reservation ID:", String.valueOf(reservationDetails.getId()),
-                                "User   ID:", String.valueOf(reservationDetails.getUserId()),
-                                "Username:", reservationDetails.getUsername(),
-                                "Book ID:", String.valueOf(reservationDetails.getBookId()),
-                                "Book Title:", reservationDetails.getBookTitle(),
-                                "Reservation Status:", reservationDetails.getStatus(),
-                                "Collection Deadline:", reservationDetails.getCollectionDeadline(),
-                                "Reserved On:", reservationDetails.getCreatedAt(),
-                                "Last Updated:", reservationDetails.getUpdatedAt()
-                            };
-                            new DetailsDialog((Frame) SwingUtilities.getWindowAncestor(currentTable), "Reservation Details", details);
-                        }
-                    } else if (status.equals("Borrowed") || status.equals("Overdue") || status.equals("Returned")) {
-                        int borrowingId = record.getBorrowingId(); // Get the borrowing ID
-                        BorrowingDetails borrowingDetails = recordC.getBorrowingDetails(borrowingId);
-                        if (borrowingDetails != null) {
-                            String[] details = {
-                                "Borrowing ID:", String.valueOf(borrowingDetails.getId()),
-                                "User   ID:", String.valueOf(borrowingDetails.getUserId()),
-                                "Username:", borrowingDetails.getUsername(),
-                                "Book ID:", String.valueOf(borrowingDetails.getBookId()),
-                                "Book Title:", borrowingDetails.getBookTitle(),
-                                "Borrowing Status:", borrowingDetails.getStatus(),
-                                "Borrowed On:", borrowingDetails.getBorrowDate(),
-                                "Supposed Return Date:", borrowingDetails.getSupposedReturnDate(),
-                                "Actual Return Date:", borrowingDetails.getActualReturnDate(),
-                                "Last Updated:", borrowingDetails.getUpdatedAt()
-                            };
-                            new DetailsDialog((Frame) SwingUtilities.getWindowAncestor(currentTable), "Borrowing Details", details);
-                        }
-                    }
-                } catch (IndexOutOfBoundsException e) {
-                    JOptionPane.showMessageDialog (LibrarianOperationsManagement.this, "Please select a record to view details.", "Error", JOptionPane.ERROR_MESSAGE);
-                } catch (ClassCastException e) {
-                    JOptionPane.showMessageDialog(LibrarianOperationsManagement.this, "An error occurred while retrieving details. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+    private void handleAction() {
+        stopCellEditing();
+        if (action.equals("More Details")) {
+            try {
+                int rowIndex = currentTable.convertRowIndexToModel(currentTable.getEditingRow()); // Get the selected row index
+                if (rowIndex < 0) {
+                    JOptionPane.showMessageDialog(LibrarianOperationsManagement.this, "Please select a record to view details.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return; // Exit if no row is selected
                 }
+
+                if (currentTable == reservationTable) {
+                    // Handle reservation details
+                    RecordController.RecordDisplay record = reservationRecords.get(rowIndex);
+                    ReservationDetails reservationDetails = recordC.getReservationDetails(record.getReservationId());
+                    if (reservationDetails != null) {
+                        String[] details = {
+                            "Reservation ID:", String.valueOf(reservationDetails.getId()),
+                            "User  ID:", String.valueOf(reservationDetails.getUserId()),
+                            "Username:", reservationDetails.getUsername(),
+                            "Book ID:", String.valueOf(reservationDetails.getBookId()),
+                            "Book Title:", reservationDetails.getBookTitle(),
+                            "Reservation Status:", reservationDetails.getStatus(),
+                            "Collection Deadline:", reservationDetails.getCollectionDeadline(),
+                            "Reserved On:", reservationDetails.getCreatedAt(),
+                            "Last Updated:", reservationDetails.getUpdatedAt()
+                        };
+                        new DetailsDialog((Frame) SwingUtilities.getWindowAncestor(currentTable), "Reservation Details", details);
+                    }
+                } else if (currentTable == borrowingTable) {
+                    // Handle borrowing details
+                    RecordController.RecordDisplay record = borrowingRecords.get(rowIndex);
+                    BorrowingDetails borrowingDetails = recordC.getBorrowingDetails(record.getBorrowingId());
+                    if (borrowingDetails != null) {
+                        String[] details = {
+                            "Borrowing ID:", String.valueOf(borrowingDetails.getId()),
+                            "User  ID:", String.valueOf(borrowingDetails.getUserId()),
+                            "Username:", borrowingDetails.getUsername(),
+                            "Book ID:", String.valueOf(borrowingDetails.getBookId()),
+                            "Book Title:", borrowingDetails.getBookTitle(),
+                            "Borrowing Status:", borrowingDetails.getStatus(),
+                            "Borrowed On:", borrowingDetails.getBorrowDate(),
+                            "Supposed Return Date:", borrowingDetails.getSupposedReturnDate(),
+                            "Actual Return Date:", borrowingDetails.getActualReturnDate(),
+                            "Last Updated:", borrowingDetails.getUpdatedAt()
+                        };
+                        new DetailsDialog((Frame) SwingUtilities.getWindowAncestor(currentTable), "Borrowing Details", details);
+                    }
+                }
+            } catch (IndexOutOfBoundsException e) {
+                JOptionPane.showMessageDialog(LibrarianOperationsManagement.this, "Please select a record to view details.", "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (ClassCastException e) {
+                JOptionPane.showMessageDialog(LibrarianOperationsManagement.this, "An error occurred while retrieving details. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
+}
 
     public class DetailsDialog extends JDialog {
         private final JPanel panel;

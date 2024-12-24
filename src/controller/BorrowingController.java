@@ -168,8 +168,6 @@ public class BorrowingController{
     }
     
     public boolean createBorrowing(String username, int bookId) {
-        String sql = "INSERT INTO borrowing (user_id, book_id, status, borrow_date, supposed_return_date) VALUES (?, ?, 'Borrowed', CURRENT_TIMESTAMP, DATEADD(WEEK, 2, CURRENT_TIMESTAMP))";
-
         // First, check if the book is available
         if (!isBookAvailable(bookId)) {
             JOptionPane.showMessageDialog(null, "The selected book is not available for borrowing.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -183,11 +181,33 @@ public class BorrowingController{
             return false;
         }
 
-        try (Connection conn = db.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, userId);
-            pstmt.setInt(2, bookId);
-            int rowsAffected = pstmt.executeUpdate();
-            return rowsAffected > 0; // Return true if the insert was successful
+        // Insert the reservation record with status "Pending"
+        String reservationSql = "INSERT INTO reservations (user_id, book_id, status, collection_deadline) VALUES (?, ?, 'Pending', DATEADD(WEEK, 1, CURRENT_TIMESTAMP))";
+        String updateReservationSql = "UPDATE reservations SET status = 'Collected' WHERE user_id = ? AND book_id = ? AND status = 'Pending'";
+
+        try (Connection conn = db.getConnection()) {
+            conn.setAutoCommit(false); // Start transaction
+
+            // Insert the reservation record
+            try (PreparedStatement pstmt = conn.prepareStatement(reservationSql)) {
+                pstmt.setInt(1, userId);
+                pstmt.setInt(2, bookId);
+                int rowsAffected = pstmt.executeUpdate();
+                if (rowsAffected <= 0) {
+                    conn.rollback(); // Rollback if insert fails
+                    return false;
+                }
+            }
+
+            // Update the reservation record to change status to "Collected"
+            try (PreparedStatement pstmt = conn.prepareStatement(updateReservationSql)) {
+                pstmt.setInt(1, userId);
+                pstmt.setInt(2, bookId);
+                pstmt.executeUpdate();
+            }
+
+            conn.commit(); // Commit transaction
+            return true; // Return true if both operations were successful
         } catch (SQLException e) {
             e.printStackTrace();
             return false; // Return false if there was an error

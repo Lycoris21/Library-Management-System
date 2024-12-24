@@ -106,4 +106,9 @@ public class Book{
         this.updatedAt = updatedAt;
     }
     
+    @Override
+    public String toString() {
+        return title; // Return the title for display in JComboBox
+    }
+    
 }
