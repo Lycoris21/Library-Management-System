@@ -4,10 +4,18 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/C:/Users/Lycoris/Documents/GitHub/Library-Management-System/src/model/User.java</file>
-            <file>file:/C:/Users/Lycoris/Documents/GitHub/Library-Management-System/src/view/AdminRecords.java</file>
+            <file>file:/C:/Users/Lycoris/Documents/GitHub/Library-Management-System/src/view/LibrarianOperationsManagement.java</file>
+            <file>file:/C:/Users/Lycoris/Documents/GitHub/Library-Management-System/src/utility/UserSession.java</file>
+            <file>file:/C:/Users/Lycoris/Documents/GitHub/Library-Management-System/src/view/AdminBookManagement.java</file>
+            <file>file:/C:/Users/Lycoris/Documents/GitHub/Library-Management-System/src/controller/RecordController.java</file>
+            <file>file:/C:/Users/Lycoris/Documents/GitHub/Library-Management-System/src/utility/Database.java</file>
             <file>file:/C:/Users/Lycoris/Documents/GitHub/Library-Management-System/src/controller/BookController.java</file>
+            <file>file:/C:/Users/Lycoris/Documents/GitHub/Library-Management-System/src/utility/PasswordHasher.java</file>
+            <file>file:/C:/Users/Lycoris/Documents/GitHub/Library-Management-System/src/model/Book.java</file>
+            <file>file:/C:/Users/Lycoris/Documents/GitHub/Library-Management-System/src/model/Borrowing.java</file>
+            <file>file:/C:/Users/Lycoris/Documents/GitHub/Library-Management-System/src/controller/BorrowingController.java</file>
+            <file>file:/C:/Users/Lycoris/Documents/GitHub/Library-Management-System/src/model/Reservation.java</file>
             <file>file:/C:/Users/Lycoris/Documents/GitHub/Library-Management-System/src/controller/UserController.java</file>
-            <file>file:/C:/Users/Lycoris/Documents/GitHub/Library-Management-System/src/view/AdminUserManagement.java</file>
         </group>
     </open-files>
 </project-private>

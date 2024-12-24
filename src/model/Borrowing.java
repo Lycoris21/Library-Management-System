@@ -14,6 +14,9 @@ public class Borrowing{
     private Timestamp updatedAt;
     
     private String bookTitle; //added coz izza bijj
+    private String transactionType;
+    private String username;
+    private Timestamp transactionDate;
     
     public int getBorrowId() {
         return borrowId;
@@ -79,4 +82,27 @@ public class Borrowing{
         this.bookTitle = bookTitle;
     }
     
+    public String getTransactionType() {
+        return transactionType;
+    }
+
+    public void setTransactionType(String transactionType) {
+        this.transactionType = transactionType;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public Timestamp getTransactionDate() {
+        return transactionDate;
+    }
+
+    public void setTransactionDate(Timestamp transactionDate) {
+        this.transactionDate = transactionDate;
+    }
 }

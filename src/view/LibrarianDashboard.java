@@ -205,7 +205,7 @@ public class LibrarianDashboard extends JFrame {
         JLabel box4title = new JLabel("Most Borrowed Books");
         box4title.setFont(new Font("Serif", Font.BOLD, 24));
         box4title.setAlignmentX(Component.CENTER_ALIGNMENT);
-        box4title.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
+        box4title.setBorder(BorderFactory.createEmptyBorder(15, 0, 15, 0));
         box4.add(box4title);
 
 // Get most borrowed books from BookController
@@ -222,7 +222,7 @@ public class LibrarianDashboard extends JFrame {
                 Book book = mostBorrowedBooks.get(i);
 
                 box4bookPanel = new JPanel();
-                box4bookPanel.setBackground(Color.decode("#1E3A8A"));
+                box4bookPanel.setBackground(new Color(0x134671));
                 box4bookPanel.setLayout(new BorderLayout(10, 0)); // Add horizontal gap of 10 pixels
 
                 // Rank Label
@@ -270,7 +270,7 @@ public class LibrarianDashboard extends JFrame {
         JLabel box5titleLabel = new JLabel("Newest Books");
         box5titleLabel.setFont(new Font("Serif", Font.BOLD, 24));
         box5titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        box5titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
+        box5titleLabel.setBorder(BorderFactory.createEmptyBorder(15, 0, 15, 0));
         box5.add(box5titleLabel);
 
 // Get newest books from BookController
@@ -287,10 +287,8 @@ public class LibrarianDashboard extends JFrame {
                 Book book = newestBooks.get(i);
 
                 box5bookPanel = new JPanel();
-                box5bookPanel.setBackground(Color.decode("#1E3A8A"));
-                box5bookPanel.setLayout(new BorderLayout());
-                box5bookPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
-                box5bookPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+                box5bookPanel.setBackground(new Color(0x134671));
+                box5bookPanel.setLayout(new BorderLayout(10,0));
 
                 // Rank Label
                 JLabel rankLabel = new JLabel(String.valueOf(i + 1));
@@ -316,6 +314,9 @@ public class LibrarianDashboard extends JFrame {
                 categoryLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 10));
                 box5bookPanel.add(categoryLabel, BorderLayout.EAST);
 
+                box5bookPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+                box5bookPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
+                
                 box5.add(box5bookPanel);
                 box5.add(Box.createRigidArea(new Dimension(0, 10)));
             }
@@ -332,7 +333,7 @@ public class LibrarianDashboard extends JFrame {
         JLabel box6titleLabel = new JLabel("Latest Transactions");
         box6titleLabel.setFont(new Font("Serif", Font.BOLD, 24));
         box6titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        box6titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
+        box6titleLabel.setBorder(BorderFactory.createEmptyBorder(15, 0, 15, 0));
         box6.add(box6titleLabel);
 
 // Get latest transactions from BorrowingController
@@ -349,15 +350,13 @@ public class LibrarianDashboard extends JFrame {
                 Borrowing borrow = latestTrans.get(i);
 
                 box6recordPanel = new JPanel();
-                box6recordPanel.setBackground(Color.decode("#1E3A8A"));
-                box6recordPanel.setLayout(new BorderLayout());
-                box6recordPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
-                box6recordPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+                box6recordPanel.setBackground(new Color(0x134671));
+                box6recordPanel.setLayout(new BorderLayout(10, 0));
 
-                // Status Label
-                JLabel statusLabel = new JLabel(borrow.getStatus());
+                // Transaction Type Label
+                JLabel statusLabel = new JLabel(borrow.getTransactionType());
                 statusLabel.setForeground(Color.WHITE);
-                statusLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
+                statusLabel.setFont(new Font("SansSerif", Font.PLAIN, 10));
                 statusLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 5));
                 box6recordPanel.add(statusLabel, BorderLayout.WEST);
 
@@ -371,14 +370,22 @@ public class LibrarianDashboard extends JFrame {
 
                 // Timestamp Label
                 JLabel timestampLabel = new JLabel(
-                        borrow.getUpdatedAt() != null
-                        ? new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(borrow.getUpdatedAt())
-                        : "N/A"
+                    borrow.getUpdatedAt() != null
+                    ? "<html>" + 
+                      "<div style='text-align:center;'>" +
+                      new SimpleDateFormat("yyyy-MM-dd").format(borrow.getUpdatedAt()) + "<br>" + 
+                      new SimpleDateFormat("HH:mm:ss").format(borrow.getUpdatedAt()) + 
+                      "</div></html>"
+                    : "N/A"
                 );
                 timestampLabel.setForeground(Color.WHITE);
-                timestampLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
+                timestampLabel.setFont(new Font("SansSerif", Font.PLAIN, 8));
+                timestampLabel.setHorizontalAlignment(SwingConstants.RIGHT);
                 timestampLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 10));
                 box6recordPanel.add(timestampLabel, BorderLayout.EAST);
+
+                box6recordPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+                box6recordPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
 
                 box6.add(box6recordPanel);
                 box6.add(Box.createRigidArea(new Dimension(0, 10)));

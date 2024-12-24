@@ -3,10 +3,13 @@ package view;
 import javax.swing.*;
 import java.awt.*;
 import javax.swing.border.EmptyBorder;
-import java.util.*;
+import java.util.List;
 import controller.BookController;
 import controller.BorrowingController;
 import controller.UserController;
+import java.util.stream.Collectors;
+import model.Book;
+import model.User;
 import utility.Database;
 import utility.UserSession;
 
@@ -131,55 +134,33 @@ public class LibrarianBookListings extends JFrame {
         searchLabel = new JLabel("Search");
         searchLabel.setFont(new Font("Serif", Font.PLAIN, 20));
         searchLabel.setBounds(360, 67, 100, 30);
-    
+
         searchField = new JTextField();
         searchField.setBounds(430, 70, 500, 30);
-    
+        searchField.addActionListener(evt -> searchBooks());
+
         // Filter and Add Book Buttons
-        filterButton = new JButton("Filter");
-        filterButton.setBounds(950, 70, 100, 30);
-        filterButton.setForeground(Color.WHITE);
-        filterButton.setBackground(new Color(0x316FA2));
+        searchButton = new JButton("Search");
+        searchButton.setBounds(950, 70, 100, 30);
+        searchButton.setForeground(Color.WHITE);
+        searchButton.setBackground(new Color(0x316FA2));
+        searchButton.addActionListener(evt -> searchBooks());
 
-        // Main Panel for Books
-        bookPanel = new JPanel();
-        bookPanel.setLayout(new GridLayout(0, 1, 10, 10)); // Vertical list of books
-        bookPanel.setBackground(Color.WHITE);
+        JPanel mainPanel = new JPanel();
+        mainPanel.setBounds(350, 150, 1100, 600);
+        mainPanel.setLayout(new BorderLayout());
+        mainPanel.setBackground(new Color(229, 231, 235)); // Gray background
 
-        // Sample book items
-        for (int i = 0; i < 8; i++) {
-            JPanel bookItem = new JPanel();
-            bookItem.setLayout(new BorderLayout(10, 10)); // Add spacing between components
-            bookItem.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 10)); // Add padding around the panel
-            bookItem.setBackground(new Color(0x004165));
+        // Create the BookPanel
+        bookPanel = new BookPanel();
 
-            JLabel bookInfo = new JLabel("<html>Title: Sample Book " + (i + 1) + "<br>Author: Author Name<br>Category: Fiction<br>ISBN: 123456789<br>Quantity Available: 10</html>");
-            bookInfo.setForeground(Color.WHITE);
-            bookInfo.setFont(new Font("Serif", Font.PLAIN, 16));
-            bookInfo.setBorder(new EmptyBorder(0, 20, 0, 0));
-
-            JLabel bookImage = new JLabel();
-            bookImage.setPreferredSize(new Dimension(100, 100));
-            bookImage.setOpaque(true);
-            bookImage.setBackground(Color.LIGHT_GRAY); // Placeholder for book image
-            
-            JButton reserveButton = new JButton();
-            reserveButton.setText("Reserve");
-            reserveButton.setForeground(new Color(0x316FA2));
-
-            bookItem.add(bookImage, BorderLayout.WEST);
-            bookItem.add(bookInfo, BorderLayout.CENTER);
-            bookItem.add(reserveButton, BorderLayout.EAST);
-            
-
-            bookPanel.add(bookItem);
-            
-        }
-
-        // Scroll Pane for Books
-        JScrollPane scrollPane = new JScrollPane(bookPanel);
-        scrollPane.setBounds(360, 150, 1100, 600);
+        // Wrap the BookPanel in a JScrollPane
+        scrollPane = new JScrollPane(bookPanel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        // Add the JScrollPane to the main panel
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
 
         // Frame Setup
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -192,8 +173,212 @@ public class LibrarianBookListings extends JFrame {
         add(nav);
         add(searchLabel);
         add(searchField);
-        add(filterButton);
-        add(scrollPane);
+        add(searchButton);
+        add(mainPanel);
+    }
+
+    private void searchBooks() {
+        String query = searchField.getText().trim().toLowerCase();
+
+        // If query is empty, reset to show all books
+        if (query.isEmpty()) {
+            resetBookList();
+            return;
+        }
+
+        // Get all books from BookController
+        List<Book> allBooks = bookC.getAllBooks();
+
+        // Filter books based on search query
+        List<Book> filteredBooks = allBooks.stream()
+                .filter(book
+                        -> book.getTitle().toLowerCase().contains(query)
+                || book.getAuthor().toLowerCase().contains(query)
+                || book.getCategory().toLowerCase().contains(query)
+                || book.getPublisher().toLowerCase().contains(query)
+                || String.valueOf(book.getPublishedYear()).contains(query)
+                )
+                .collect(Collectors.toList());
+
+        // Update the book panel with filtered results
+        updateBookPanel(filteredBooks);
+    }
+
+// Method to reset book list to show all books
+    private void resetBookList() {
+        List<Book> allBooks = bookC.getAllBooks();
+        updateBookPanel(allBooks);
+    }
+
+// Method to update book panel with given list of books
+    private void updateBookPanel(List<Book> books) {
+        // Remove existing components from book panel
+        bookPanel.removeAll();
+
+        // Set background color
+        bookPanel.setBackground(new Color(229, 231, 235));
+
+        // Check if filtered list is empty
+        if (books.isEmpty()) {
+            JLabel noBookLabel = new JLabel("No books found");
+            noBookLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            noBookLabel.setForeground(Color.GRAY);
+            bookPanel.add(noBookLabel);
+        } else {
+            // Add filtered books to panel
+            for (Book book : books) {
+                bookPanel.add(bookPanel.createBookItem(book));
+                bookPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+            }
+        }
+
+        // Revalidate and repaint the panel
+        bookPanel.revalidate();
+        bookPanel.repaint();
+    }
+
+    class BookPanel extends JPanel {
+
+        public BookPanel() {
+            setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+            setBackground(new Color(229, 231, 235)); // Gray background
+
+            // Get books from BookController
+            List<Book> books = bookC.getAllBooks(); // Assuming this method exists
+
+            if (books.isEmpty()) {
+                JLabel noBookLabel = new JLabel("No books available");
+                noBookLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+                add(noBookLabel);
+            } else {
+                for (Book book : books) {
+                    add(createBookItem(book));
+                    add(Box.createRigidArea(new Dimension(0, 10))); // Space between items
+                }
+            }
+        }
+
+        private JPanel createBookItem(Book book) {
+            JPanel bookItem = new JPanel(new GridLayout(1, 3, 10, 0));
+            bookItem.setBackground(new Color(13, 42, 84)); // Blue background
+            bookItem.setBorder(BorderFactory.createEmptyBorder(10, 100, 10, 10)); // Padding
+
+            bookItem.setPreferredSize(new Dimension(1082, 100)); // Width, Height
+            bookItem.setMaximumSize(new Dimension(1082, 100));
+            bookItem.setMinimumSize(new Dimension(1082, 100));
+
+            // Left panel (Book Details)
+            JPanel leftPanel = new JPanel(new GridLayout(4, 1, 0, 5));
+            leftPanel.setBackground(new Color(13, 42, 84));
+
+            JLabel titleLabel = new JLabel("Title: " + book.getTitle());
+            JLabel authorLabel = new JLabel("Author: " + book.getAuthor());
+            JLabel categoryLabel = new JLabel("Category: " + book.getCategory());
+            JLabel isbnLabel = new JLabel("ISBN: " + book.getIsbn());
+
+            // Styling left panel labels
+            JLabel[] leftLabels = {titleLabel, authorLabel, categoryLabel, isbnLabel};
+            for (JLabel label : leftLabels) {
+                label.setForeground(Color.WHITE);
+                label.setFont(new Font("Serif", Font.PLAIN, 12));
+            }
+
+            leftPanel.add(titleLabel);
+            leftPanel.add(authorLabel);
+            leftPanel.add(categoryLabel);
+            leftPanel.add(isbnLabel);
+
+            // Middle panel (Additional Book Info)
+            JPanel middlePanel = new JPanel(new GridLayout(4, 1, 0, 5));
+            middlePanel.setBackground(new Color(13, 42, 84));
+            middlePanel.setBorder(BorderFactory.createEmptyBorder(0, 50, 0, 0));
+
+            JLabel publisherLabel = new JLabel("Publisher: " + book.getPublisher());
+            JLabel yearLabel = new JLabel("Published Year: " + book.getPublishedYear());
+            JLabel quantityLabel = new JLabel("Quantity: " + book.getQuantity());
+
+            // Styling middle panel labels
+            JLabel[] middleLabels = {publisherLabel, yearLabel, quantityLabel};
+            for (JLabel label : middleLabels) {
+                label.setForeground(Color.WHITE);
+                label.setFont(new Font("Serif", Font.PLAIN, 12));
+            }
+
+            middlePanel.add(publisherLabel);
+            middlePanel.add(yearLabel);
+            middlePanel.add(quantityLabel);
+            middlePanel.add(new JLabel()); // Empty label to maintain grid layout
+
+            // Reserve button panel
+            JPanel buttonPanel = new JPanel(new GridBagLayout());
+            buttonPanel.setBackground(new Color(13, 42, 84));
+            buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 80, 0, 0));
+
+            JButton reserveButton = new JButton("Reserve");
+            reserveButton.setBackground(new Color(59, 130, 246)); // Blue button background
+            reserveButton.setForeground(Color.WHITE);
+            reserveButton.setFocusPainted(false);
+            reserveButton.setPreferredSize(new Dimension(120, 50)); // Set a specific size for the button
+            reserveButton.setFont(new Font("Serif", Font.BOLD, 12));
+
+            // Add action listener for reservation
+            reserveButton.addActionListener(e -> reserveBook(book));
+
+            // Center the button in its panel
+            buttonPanel.add(reserveButton);
+
+            // Add panels to book item
+            bookItem.add(leftPanel);
+            bookItem.add(middlePanel);
+            bookItem.add(buttonPanel);
+
+            return bookItem;
+        }
+
+        private void reserveBook(Book book) {
+            // Get the current user from UserSession
+            User currentUser = UserSession.getInstance().getCurrentUser();
+
+            if (currentUser == null) {
+                JOptionPane.showMessageDialog(this,
+                        "Please log in to reserve a book.",
+                        "Login Required",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // Call the reserveBook method in BookController
+            boolean success = bookC.reserveBook(currentUser.getUserId(), book.getBookId());
+
+            // If successful, you might want to refresh the book list
+            if (success) {
+                // Optionally, refresh the book list
+                refreshBookList();
+            }
+        }
+
+        private void refreshBookList() {
+            // Remove all existing components
+            removeAll();
+
+            // Repopulate with updated book list
+            List<Book> books = bookC.getAllBooks();
+
+            if (books.isEmpty()) {
+                JLabel noBookLabel = new JLabel("No books available");
+                noBookLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+                add(noBookLabel);
+            } else {
+                for (Book book : books) {
+                    add(createBookItem(book));
+                    add(Box.createRigidArea(new Dimension(0, 10))); // Space between items
+                }
+            }
+
+            // Revalidate and repaint
+            revalidate();
+            repaint();
+        }
     }
 
     private JPanel nav;
@@ -203,9 +388,10 @@ public class LibrarianBookListings extends JFrame {
     private JLabel opsm;
     private JLabel thistory;
     private JLabel username;
-    private JLabel searchLabel;
-    private JTextField searchField;
-    private JButton filterButton;
-    private JPanel bookPanel;
+    private javax.swing.JLabel searchLabel;
+    private javax.swing.JTextField searchField;
+    private javax.swing.JButton searchButton;
+    private BookPanel bookPanel;
+    private JScrollPane scrollPane;
     
 }

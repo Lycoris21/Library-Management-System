@@ -17,6 +17,21 @@ public class RecordController {
         this.db = db;
     }
 
+    public boolean cancelReservation(int reservationId) {
+        String sql = "UPDATE Reservations SET status = 'Void' WHERE reservation_id = ? AND status = 'Pending'";
+
+        try (Connection conn = db.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, reservationId);
+            int affectedRows = pstmt.executeUpdate();
+
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
     public List<RecordDisplay> getRecords() {
         List<RecordDisplay> records = new ArrayList<>();
 

@@ -5,7 +5,13 @@ import java.awt.*;
 import java.util.List;
 import controller.BookController;
 import controller.BorrowingController;
+import controller.RecordController;
 import controller.UserController;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import model.Book;
 import model.Borrowing;
 import utility.Database;
@@ -13,13 +19,31 @@ import utility.UserSession;
 
 public class LibrarianOperationsManagement extends JFrame {
 
-    Database db = new Database();
-    BookController bookC = new BookController(db);
-    BorrowingController borrowC = new BorrowingController(db);
-    UserController userC = new UserController(db);
+    private final Database db = new Database();
+    private final BookController bookC = new BookController(db);
+    private final BorrowingController borrowC = new BorrowingController(db);
+    private final UserController userC = new UserController(db);
+
+    private JTable table;
+    private DefaultTableModel tableModel;
+    
+    private javax.swing.JPanel nav;
+    private javax.swing.JLabel dash;
+    private javax.swing.JLabel home;
+    private javax.swing.JLabel blistings;
+    private javax.swing.JLabel opsm;
+    private javax.swing.JLabel thistory;
+    private javax.swing.JLabel username;
+    private javax.swing.JLabel searchLabel;
+    private javax.swing.JTextField searchField;
+    private javax.swing.JButton searchButton;
+    private javax.swing.JButton addBookButton;
+    private javax.swing.JLabel booksLabel;
     
     public LibrarianOperationsManagement(){
         initComponents();
+//        setupTables();
+//        populateTable();
     }
     
     private void homeMouseClicked(java.awt.event.MouseEvent evt) {                                     
@@ -43,16 +67,6 @@ public class LibrarianOperationsManagement extends JFrame {
         lrh.setVisible(true);
         setVisible(false);
     } 
-    
-    public static void main(String[] args) {
-
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new LibrarianOperationsManagement().setVisible(true);
-            }
-        });
-        
-    }
     
     private void initComponents(){
         
@@ -130,25 +144,39 @@ public class LibrarianOperationsManagement extends JFrame {
         nav.add(thistory);
         nav.add(username);
         
-        
+        searchLabel = new JLabel("Search:");
+        searchLabel.setFont(new Font("Serif", Font.PLAIN, 20));
+        searchLabel.setBounds(360, 60, 100, 30);
+        add(searchLabel);
+
+        searchField = new JTextField();
+        searchField.setBounds(430, 60, 700, 30);
+        add(searchField);
+
+        searchButton = new JButton("Search");
+        searchButton.setBounds(1140, 60, 100, 30);
+        searchButton.setForeground(Color.WHITE);
+        searchButton.setBackground(new Color(0x316FA2));
+//        searchButton.addActionListener(evt -> searchBooks());
+        add(searchButton);
+
+
+
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1535,820);
+        setSize(1535, 820);
         setResizable(false);
         getContentPane().setBackground(Color.WHITE);
         setTitle("Library Management System");
         setLayout(null);
         setVisible(true);
-        
+
         add(nav);
-        //add(div2);
+        add(searchField);
+        add(booksLabel);
+
     }
     
-    private javax.swing.JPanel nav;
-    private javax.swing.JLabel dash;
-    private javax.swing.JLabel home;
-    private javax.swing.JLabel blistings;
-    private javax.swing.JLabel opsm;
-    private javax.swing.JLabel thistory;
-    private javax.swing.JLabel username;
-    
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new LibrarianOperationsManagement().setVisible(true));
+    }
 }

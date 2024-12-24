@@ -4,6 +4,7 @@ import java.sql.*;
 import java.util.*;
 import utility.Database;
 import model.Borrowing;
+import model.User;
 
 public class BorrowingController{
     
@@ -16,39 +17,53 @@ public class BorrowingController{
     public List<Borrowing> getLatestTransactions() {
         List<Borrowing> transactions = new ArrayList<>();
         String sql = """
-        SELECT TOP 10
-            b.borrow_id, 
-            b.user_id, 
-            b.book_id, 
-            b.borrow_date, 
-            b.supposed_return_date, 
-            b.actual_return_date, 
-            b.status, 
-            b.updated_at, 
-            book.title AS book_title
-        FROM 
-            borrowing b
-        JOIN 
-            books book ON b.book_id = book.book_id
-        ORDER BY 
-            b.updated_at DESC
-    """;
+            SELECT TOP 10 * FROM (
+                SELECT 
+                    'Reserved' AS transaction_type,
+                    r.reservation_id AS id,
+                    r.book_id,
+                    book.title AS book_title,
+                    r.status,
+                    r.updated_at
+                FROM 
+                    reservations r
+                JOIN 
+                    books book ON r.book_id = book.book_id
+                WHERE 
+                    r.status = 'Pending'
+
+                UNION ALL
+
+                SELECT 
+                    b.status AS transaction_type,
+                    b.borrow_id AS id,
+                    b.book_id,
+                    book.title AS book_title,
+                    b.status,
+                    b.updated_at
+                FROM 
+                    borrowing b
+                JOIN 
+                    books book ON b.book_id = book.book_id
+                WHERE 
+                    b.status IN ('Borrowed', 'Returned')
+            ) AS combined_transactions
+            ORDER BY 
+                updated_at DESC
+            """;
 
         try (Connection conn = db.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql); ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
-                Borrowing borrowing = new Borrowing();
-                borrowing.setBorrowId(rs.getInt("borrow_id"));
-                borrowing.setUserId(rs.getInt("user_id"));
-                borrowing.setBookId(rs.getInt("book_id"));
-                borrowing.setBorrowDate(rs.getTimestamp("borrow_date"));
-                borrowing.setSupposedReturnDate(rs.getTimestamp("supposed_return_date"));
-                borrowing.setActualReturnDate(rs.getTimestamp("actual_return_date"));
-                borrowing.setStatus(rs.getString("status"));
-                borrowing.setUpdatedAt(rs.getTimestamp("updated_at"));
-                borrowing.setBookTitle(rs.getString("book_title"));
+                Borrowing transaction = new Borrowing();
+                transaction.setTransactionType(rs.getString("transaction_type"));
+                transaction.setBorrowId(rs.getInt("id"));
+                transaction.setBookId(rs.getInt("book_id"));
+                transaction.setStatus(rs.getString("status"));
+                transaction.setUpdatedAt(rs.getTimestamp("updated_at"));
+                transaction.setBookTitle(rs.getString("book_title"));
 
-                transactions.add(borrowing);
+                transactions.add(transaction);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -56,17 +71,68 @@ public class BorrowingController{
 
         return transactions;
     }
-
     
-    private String deriveTransactionStatus(String reservationStatus, Borrowing borrowing) {
-        if (reservationStatus != null && reservationStatus.equals("Pending")) {
-            return "Reservation"; // If reservation is still pending
-        } else if (borrowing.getStatus().equals("Borrowed")) {
-            return "Borrowing"; // If the status is "Borrowed"
-        } else if (borrowing.getStatus().equals("Returned")) {
-            return "Returning"; // If the status is "Returned"
+    public List<Borrowing> getUserLatestTransactions(User user) {
+        List<Borrowing> transactions = new ArrayList<>();
+        String sql = """
+            SELECT TOP 10 * FROM (
+                SELECT 
+                    'Reserved' AS transaction_type,
+                    r.reservation_id AS id,
+                    r.book_id,
+                    book.title AS book_title,
+                    r.status,
+                    r.updated_at
+                FROM 
+                    reservations r
+                JOIN 
+                    books book ON r.book_id = book.book_id
+                WHERE 
+                    r.user_id = ? AND r.status = 'Pending'
+
+                UNION ALL
+
+                SELECT 
+                    b.status AS transaction_type,
+                    b.borrow_id AS id,
+                    b.book_id,
+                    book.title AS book_title,
+                    b.status,
+                    b.updated_at
+                FROM 
+                    borrowing b
+                JOIN 
+                    books book ON b.book_id = book.book_id
+                WHERE 
+                    b.user_id = ? AND b.status IN ('Borrowed', 'Returned')
+            ) AS combined_transactions
+            ORDER BY 
+                updated_at DESC
+            """;
+
+        try (Connection conn = db.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, user.getUserId());
+            pstmt.setInt(2, user.getUserId());
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Borrowing transaction = new Borrowing();
+                    transaction.setTransactionType(rs.getString("transaction_type"));
+                    transaction.setBorrowId(rs.getInt("id"));
+                    transaction.setBookId(rs.getInt("book_id"));
+                    transaction.setStatus(rs.getString("status"));
+                    transaction.setUpdatedAt(rs.getTimestamp("updated_at"));
+                    transaction.setBookTitle(rs.getString("book_title"));
+
+                    transactions.add(transaction);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        return "Unknown"; // In case no valid status is found
+
+        return transactions;
     }
 
     public List<Map<String, Object>> getAllUsersWithBorrowedBooksCount() {

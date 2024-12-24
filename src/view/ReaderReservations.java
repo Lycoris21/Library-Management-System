@@ -387,7 +387,15 @@ public class ReaderReservations extends JFrame {
                         ));
 
                         String[] details = detailsList.toArray(new String[0]);
-                        new DetailsDialog((Frame) SwingUtilities.getWindowAncestor(table), "Reservation Details", details);
+                        new DetailsDialog(
+                                (Frame) SwingUtilities.getWindowAncestor(table),
+                                "Reservation Details",
+                                details,
+                                recordC, // Pass RecordController
+                                reservationId, // Pass Reservation ID
+                                reservationDetails.getStatus(), // Pass current status
+                                ReaderReservations.this // Pass parent frame for refreshing
+                        );
                     }
                 } catch (IndexOutOfBoundsException e) {
                     JOptionPane.showMessageDialog(ReaderReservations.this, "Please select a record to view details.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -399,27 +407,101 @@ public class ReaderReservations extends JFrame {
     }
     
     public class DetailsDialog extends JDialog {
-        
-        private final JPanel panel;
-        
-        public DetailsDialog(Frame parent, String title, String[] details) {
+
+        //private final JPanel panel;
+        private final RecordController recordC;
+        private final int reservationId;
+        private final String currentStatus;
+        private final ReaderReservations parentFrame;
+
+        public DetailsDialog(Frame parent, String title, String[] details, RecordController recordC,
+                int reservationId, String currentStatus, ReaderReservations parentFrame) {
             super(parent, title, true);
+            this.recordC = recordC;
+            this.reservationId = reservationId;
+            this.currentStatus = currentStatus;
+            this.parentFrame = parentFrame;
+
             setTitle("More Details");
-            panel = new JPanel(new GridLayout(details.length/2, 2));
-            panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-            setContentPane(panel);
+
+            // Use BorderLayout to accommodate potential Cancel button
+            JPanel mainPanel = new JPanel(new BorderLayout());
+
+            // Details panel with GridLayout
+            JPanel detailsPanel = new JPanel(new GridLayout(details.length / 2, 2));
+            detailsPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
             for (int i = 0; i < details.length; i += 2) {
-                panel.add(new JLabel(details[i])); // Label
-                panel.add(new JLabel(details[i + 1])); // Value
+                detailsPanel.add(new JLabel(details[i])); // Label
+                detailsPanel.add(new JLabel(details[i + 1])); // Value
             }
 
-            setSize(400, 300);
+            // Add details panel to main panel's center
+            mainPanel.add(detailsPanel, BorderLayout.CENTER);
+
+            // Add Cancel Reservation button if status is Pending
+            if ("Pending".equalsIgnoreCase(currentStatus)) {
+                JButton cancelReservationBtn = new JButton("Cancel Reservation");
+                cancelReservationBtn.setBackground(Color.RED);
+                cancelReservationBtn.setForeground(Color.WHITE);
+
+                cancelReservationBtn.addActionListener(e -> cancelReservation());
+
+                // Add button to bottom of main panel
+                mainPanel.add(cancelReservationBtn, BorderLayout.SOUTH);
+            }
+
+            setContentPane(mainPanel);
+
+            setSize(400, 350); // Slightly larger to accommodate button
             setLocationRelativeTo(parent);
             setVisible(true);
         }
-    }
 
+        private void cancelReservation() {
+            int confirm = JOptionPane.showConfirmDialog(
+                    this,
+                    "Are you sure you want to cancel this reservation?",
+                    "Confirm Cancellation",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                try {
+                    boolean success = recordC.cancelReservation(reservationId);
+
+                    if (success) {
+                        JOptionPane.showMessageDialog(
+                                this,
+                                "Reservation cancelled successfully.",
+                                "Cancellation Successful",
+                                JOptionPane.INFORMATION_MESSAGE
+                        );
+
+                        // Refresh the parent frame's table
+                        parentFrame.populateTable();
+
+                        // Close this dialog
+                        dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(
+                                this,
+                                "Failed to cancel reservation. Please try again.",
+                                "Cancellation Failed",
+                                JOptionPane.ERROR_MESSAGE
+                        );
+                    }
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "An error occurred: " + ex.getMessage(),
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                }
+            }
+        }
+    }
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new ReaderReservations().setVisible(true));
     }
