@@ -470,4 +470,28 @@ public class BookController{
         }
     }
     
+    public List<Book> getAvailableBooks() {
+        List<Book> availableBooks = new ArrayList<>();
+        String sql = "SELECT * FROM books WHERE quantity > 0 AND status = 'Available'"; // Adjust the status as needed
+
+        try (Connection conn = db.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql); ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                Book book = new Book();
+                book.setBookId(rs.getInt("book_id"));
+                book.setTitle(rs.getString("title"));
+                book.setAuthor(rs.getString("author"));
+                book.setCategory(rs.getString("category"));
+                book.setIsbn(rs.getString("isbn"));
+                book.setPublisher(rs.getString("publisher"));
+                book.setPublishedYear(rs.getInt("published_year"));
+                book.setQuantity(rs.getInt("quantity"));
+                book.setStatus(rs.getString("status"));
+                availableBooks.add(book);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return availableBooks;
+    }
+    
 }

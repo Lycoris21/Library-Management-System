@@ -1,19 +1,17 @@
 package view;
 
-import javax.swing.*;
-import java.awt.*;
-import java.util.List;
 import controller.BookController;
 import controller.BorrowingController;
 import controller.RecordController;
+import controller.RecordController.BorrowingDetails;
+import controller.RecordController.ReservationDetails;
 import controller.UserController;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
+import javax.swing.*;
+import javax.swing.table.*;
+import java.util.List;
+import java.awt.*;
+import java.util.ArrayList;
 import model.Book;
-import model.Borrowing;
 import utility.Database;
 import utility.UserSession;
 
@@ -23,27 +21,33 @@ public class LibrarianOperationsManagement extends JFrame {
     private final BookController bookC = new BookController(db);
     private final BorrowingController borrowC = new BorrowingController(db);
     private final UserController userC = new UserController(db);
+    private final RecordController recordC = new RecordController(db);
 
-    private JTable table;
-    private DefaultTableModel tableModel;
+    private JTable reservationTable;
+    private DefaultTableModel reservationTableModel;
+    private JTable borrowingTable;
+    private DefaultTableModel borrowingTableModel;
     
-    private javax.swing.JPanel nav;
-    private javax.swing.JLabel dash;
-    private javax.swing.JLabel home;
-    private javax.swing.JLabel blistings;
-    private javax.swing.JLabel opsm;
-    private javax.swing.JLabel thistory;
-    private javax.swing.JLabel username;
-    private javax.swing.JLabel searchLabel;
-    private javax.swing.JTextField searchField;
-    private javax.swing.JButton searchButton;
-    private javax.swing.JButton addBookButton;
-    private javax.swing.JLabel booksLabel;
+    List<RecordController.RecordDisplay> reservationRecords = recordC.getReservationRecords("Pending");
+    List<RecordController.RecordDisplay> borrowingRecords = recordC.getBorrowingRecords("Borrowed");
+
+    private JPanel nav;
+    private JLabel dash;
+    private JLabel home;
+    private JLabel blistings;
+    private JLabel opsm;
+    private JLabel thistory;
+    private JLabel username;
+    private JLabel searchLabel;
+    private JTextField searchField;
+    private JButton searchButton;
+    private JButton addButton;
+    private JLabel reservedLabel;
+    private JLabel borrowedLabel;
     
     public LibrarianOperationsManagement(){
         initComponents();
-//        setupTables();
-//        populateTable();
+        populateTable();
     }
     
     private void homeMouseClicked(java.awt.event.MouseEvent evt) {                                     
@@ -120,8 +124,6 @@ public class LibrarianOperationsManagement extends JFrame {
             }
         });
         
-        ImageIcon pp = new ImageIcon("src/images/jingliu.jpg");
-        
         username = new JLabel();
         username.setText(UserSession.getInstance().getUsername());
         username.setBounds(40, 600, 200, 200);
@@ -154,13 +156,60 @@ public class LibrarianOperationsManagement extends JFrame {
         add(searchField);
 
         searchButton = new JButton("Search");
-        searchButton.setBounds(1140, 60, 100, 30);
+        searchButton.setBounds(1140, 60, 90, 30);
         searchButton.setForeground(Color.WHITE);
         searchButton.setBackground(new Color(0x316FA2));
-//        searchButton.addActionListener(evt -> searchBooks());
+        searchButton.addActionListener(evt -> searchRecords());
         add(searchButton);
 
+        addButton = new JButton("New Borrowing");
+        addButton.setBounds(1240, 60, 150, 30);
+        addButton.setForeground(Color.WHITE);
+        addButton.setBackground(new Color(0x316FA2));
+        addButton.addActionListener(evt -> openNewBorrowingDialog());
+        add(addButton);
 
+        // Books Label
+        reservedLabel = new JLabel("Reserved - " + bookC.getCurrentlyReservedCount());
+        reservedLabel.setFont(new Font("Serif", Font.BOLD, 30));
+        reservedLabel.setBounds(360, 120, 200, 30);
+        
+        // Books Label
+        borrowedLabel = new JLabel("Borrowed - " + bookC.getCurrentlyBorrowingCount());
+        borrowedLabel.setFont(new Font("Serif", Font.BOLD, 30));
+        borrowedLabel.setBounds(930, 120, 200, 30);
+
+        // Table for Reservations
+        String[] reservationColumns = {"Username", "Title", "More Details"};
+        reservationTableModel = new DefaultTableModel(reservationColumns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return column == 2;
+            }
+        };
+        reservationTable = new JTable(reservationTableModel);
+        reservationTable.setRowHeight(40);
+        setupTable(reservationTable);
+
+        JScrollPane reservationScrollPane = new JScrollPane(reservationTable);
+        reservationScrollPane.setBounds(360, 170, 530, 550);
+        add(reservationScrollPane);
+
+        // Table for Borrowings
+        String[] borrowingColumns = {"Username", "Title", "More Details"};
+        borrowingTableModel = new DefaultTableModel(borrowingColumns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return column == 2;
+            }
+        };
+        borrowingTable = new JTable(borrowingTableModel);
+        borrowingTable.setRowHeight(40);
+        setupTable(borrowingTable);
+
+        JScrollPane borrowingScrollPane = new JScrollPane(borrowingTable);
+        borrowingScrollPane.setBounds(930, 170, 530, 550);
+        add(borrowingScrollPane);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1535, 820);
@@ -172,8 +221,287 @@ public class LibrarianOperationsManagement extends JFrame {
 
         add(nav);
         add(searchField);
-        add(booksLabel);
+        add(reservedLabel);
+        add(borrowedLabel);
 
+    }
+    
+    private void openNewBorrowingDialog() {
+        JDialog dialog = new JDialog(this, "New Borrowing", true);
+        dialog.setLayout(new GridLayout(3, 2));
+
+        // Username field
+        JTextField usernameField = new JTextField();
+        dialog.add(new JLabel("Username:"));
+        dialog.add(usernameField);
+
+        // Book dropdown
+        JComboBox<Book> bookDropdown = new JComboBox<>();
+        populateBookDropdown(bookDropdown);
+        dialog.add(new JLabel("Book Title:"));
+        dialog.add(bookDropdown);
+
+        // Add buttons
+        JButton submitButton = new JButton("Submit");
+        submitButton.addActionListener(e -> {
+            String username = usernameField.getText().trim();
+            Book selectedBook = (Book) bookDropdown.getSelectedItem();
+
+            if (username.isEmpty() || selectedBook == null) {
+                JOptionPane.showMessageDialog(dialog, "Please enter a username and select a book.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Check if the user exists
+            if (!userC.userExists(username)) {
+                JOptionPane.showMessageDialog(dialog, "User  does not exist.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Create a new borrowing record
+            boolean success = borrowC.createBorrowing(username, selectedBook.getBookId());
+            if (success) {
+                JOptionPane.showMessageDialog(dialog, "Borrowing created successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                dialog.dispose();
+                populateTable(); // Refresh the tables
+            } else {
+                JOptionPane.showMessageDialog(dialog, "Failed to create borrowing.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        dialog.add(submitButton);
+
+        dialog.setSize(400, 200);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+
+    private void populateBookDropdown(JComboBox<Book> dropdown) {
+        List<Book> availableBooks = bookC.getAvailableBooks(); // Get available books
+        for (Book book : availableBooks) {
+            dropdown.addItem(book);
+        }
+    }
+
+    private void setupTable(JTable table) {
+        // Change table header background color and font color
+        table.getTableHeader().setBackground(new Color(0x00233D));
+        table.getTableHeader().setForeground(Color.WHITE);
+        table.getTableHeader().setFont(new Font("Serif", Font.BOLD, 14));
+
+        // Center-align text in rows
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
+
+        // Set preferred width for each column
+        TableColumnModel columnModel = table.getColumnModel();
+        columnModel.getColumn(0).setPreferredWidth(50);   // Username
+        columnModel.getColumn(1).setPreferredWidth(200); // Title
+        columnModel.getColumn(2).setPreferredWidth(80); // More Details
+
+        TableColumn editColumn = table.getColumnModel().getColumn(2);
+        editColumn.setCellRenderer(new ButtonRenderer("More Details"));
+        editColumn.setCellEditor(new ButtonEditor("More Details", table)); // Pass the table reference
+    }
+
+    private void populateTable() {
+        reservationTableModel.setRowCount(0); // Clear existing rows
+        borrowingTableModel.setRowCount(0); // Clear existing rows
+
+        // Populate the reservation table
+        for (RecordController.RecordDisplay record : reservationRecords) {
+            reservationTableModel.addRow(new Object[]{
+                record.getUsername(),
+                record.getTitle(),
+                "More Details"
+            });
+        }
+
+        // Populate the borrowing table
+        for (RecordController.RecordDisplay record : borrowingRecords) {
+            borrowingTableModel.addRow(new Object[]{
+                record.getUsername(),
+                record.getTitle(),
+                "More Details"
+            });
+        }
+    }
+
+    private void searchRecords() {
+        String query = searchField.getText().trim().toLowerCase(); // Get the search query and convert to lowercase
+        reservationTableModel.setRowCount(0); // Clear existing rows for reservation table
+        borrowingTableModel.setRowCount(0); // Clear existing rows for borrowing table
+
+        // Filter and populate the reservation table
+        for (RecordController.RecordDisplay record : reservationRecords) {
+            if (record.getUsername().toLowerCase().contains(query)
+                    || record.getTitle().toLowerCase().contains(query)) {
+                reservationTableModel.addRow(new Object[]{
+                    record.getUsername(),
+                    record.getTitle(),
+                    "More Details"
+                });
+            }
+        }
+
+        // Filter and populate the borrowing table
+        for (RecordController.RecordDisplay record : borrowingRecords) {
+            if (record.getUsername().toLowerCase().contains(query)
+                    || record.getTitle().toLowerCase().contains(query)) {
+                borrowingTableModel.addRow(new Object[]{
+                    record.getUsername(),
+                    record.getTitle(),
+                    "More Details"
+                });
+            }
+        }
+
+        // Check if any records were found
+        if (reservationTableModel.getRowCount() == 0 && borrowingTableModel.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(this, "No records found matching the search criteria.", "Information", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    // Button Renderer Class
+    class ButtonRenderer extends JButton implements TableCellRenderer {
+        private String label;
+
+        public ButtonRenderer(String label) {
+            setOpaque(true);
+            this.label = label;
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            setText(label);
+            return this;
+        }
+    }
+
+    // Button Editor Class with Edit and Delete Functionality
+    class ButtonEditor extends DefaultCellEditor {
+        private JButton button;
+        private String action;
+        private boolean clicked;
+        private JTable currentTable; // Store the reference to the table
+
+        public ButtonEditor(String action, JTable table) {
+            super(new JCheckBox());
+            this.action = action;
+            this.currentTable = table; // Store the table reference
+            button = new JButton();
+            button.setOpaque(true);
+
+            button.addActionListener(evt -> handleAction());
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+            button.setText(action);
+            clicked = true;
+            return button;
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            clicked = false;
+            return action;
+        }
+
+        @Override
+        public boolean stopCellEditing() {
+            clicked = false;
+            return super.stopCellEditing();
+        }
+
+        private void handleAction() {
+            stopCellEditing();
+            if (action.equals("More Details")) {
+                try {
+                    // Use the stored reference to the table
+                    int rowIndex = currentTable.getSelectedRow(); // Get the selected row index
+                    if (rowIndex < 0) {
+                        JOptionPane.showMessageDialog(LibrarianOperationsManagement.this, "Please select a record to view details.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return; // Exit if no row is selected
+                    }
+
+                    RecordController.RecordDisplay record;
+                    if (currentTable == reservationTable) {
+                        // Get the RecordDisplay object from the reservation table
+                        record = reservationRecords.get(rowIndex);
+                    } else {
+                        // Get the RecordDisplay object from the borrowing table
+                        record = borrowingRecords.get(rowIndex);
+                    }
+
+                    String status = record.getStatus(); // Get the status
+
+                    if (status.equals("Reserved") || status.equals("Voided")) {
+                        int reservationId = record.getReservationId(); // Get the reservation ID
+                        ReservationDetails reservationDetails = recordC.getReservationDetails(reservationId);
+                        if (reservationDetails != null) {
+                            String[] details = {
+                                "Reservation ID:", String.valueOf(reservationDetails.getId()),
+                                "User   ID:", String.valueOf(reservationDetails.getUserId()),
+                                "Username:", reservationDetails.getUsername(),
+                                "Book ID:", String.valueOf(reservationDetails.getBookId()),
+                                "Book Title:", reservationDetails.getBookTitle(),
+                                "Reservation Status:", reservationDetails.getStatus(),
+                                "Collection Deadline:", reservationDetails.getCollectionDeadline(),
+                                "Reserved On:", reservationDetails.getCreatedAt(),
+                                "Last Updated:", reservationDetails.getUpdatedAt()
+                            };
+                            new DetailsDialog((Frame) SwingUtilities.getWindowAncestor(currentTable), "Reservation Details", details);
+                        }
+                    } else if (status.equals("Borrowed") || status.equals("Overdue") || status.equals("Returned")) {
+                        int borrowingId = record.getBorrowingId(); // Get the borrowing ID
+                        BorrowingDetails borrowingDetails = recordC.getBorrowingDetails(borrowingId);
+                        if (borrowingDetails != null) {
+                            String[] details = {
+                                "Borrowing ID:", String.valueOf(borrowingDetails.getId()),
+                                "User   ID:", String.valueOf(borrowingDetails.getUserId()),
+                                "Username:", borrowingDetails.getUsername(),
+                                "Book ID:", String.valueOf(borrowingDetails.getBookId()),
+                                "Book Title:", borrowingDetails.getBookTitle(),
+                                "Borrowing Status:", borrowingDetails.getStatus(),
+                                "Borrowed On:", borrowingDetails.getBorrowDate(),
+                                "Supposed Return Date:", borrowingDetails.getSupposedReturnDate(),
+                                "Actual Return Date:", borrowingDetails.getActualReturnDate(),
+                                "Last Updated:", borrowingDetails.getUpdatedAt()
+                            };
+                            new DetailsDialog((Frame) SwingUtilities.getWindowAncestor(currentTable), "Borrowing Details", details);
+                        }
+                    }
+                } catch (IndexOutOfBoundsException e) {
+                    JOptionPane.showMessageDialog (LibrarianOperationsManagement.this, "Please select a record to view details.", "Error", JOptionPane.ERROR_MESSAGE);
+                } catch (ClassCastException e) {
+                    JOptionPane.showMessageDialog(LibrarianOperationsManagement.this, "An error occurred while retrieving details. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
+    }
+
+    public class DetailsDialog extends JDialog {
+        private final JPanel panel;
+
+        public DetailsDialog(Frame parent, String title, String[] details) {
+            super(parent, title, true);
+            setTitle("More Details");
+            panel = new JPanel(new GridLayout(details.length / 2, 2));
+            panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+            setContentPane(panel);
+
+            for (int i = 0; i < details.length; i += 2) {
+                panel.add(new JLabel(details[i])); // Label
+                panel.add(new JLabel(details[i + 1])); // Value
+            }
+
+            setSize(400, 300);
+            setLocationRelativeTo(parent);
+            setVisible(true);
+        }
     }
     
     public static void main(String[] args) {

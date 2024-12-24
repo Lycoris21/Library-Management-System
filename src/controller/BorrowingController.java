@@ -2,6 +2,7 @@ package controller;
 
 import java.sql.*;
 import java.util.*;
+import javax.swing.JOptionPane;
 import utility.Database;
 import model.Borrowing;
 import model.User;
@@ -166,6 +167,59 @@ public class BorrowingController{
         return userWithBooksCountList;
     }
     
-    
+    public boolean createBorrowing(String username, int bookId) {
+        String sql = "INSERT INTO borrowing (user_id, book_id, status, borrow_date, supposed_return_date) VALUES (?, ?, 'Borrowed', CURRENT_TIMESTAMP, DATEADD(WEEK, 2, CURRENT_TIMESTAMP))";
+
+        // First, check if the book is available
+        if (!isBookAvailable(bookId)) {
+            JOptionPane.showMessageDialog(null, "The selected book is not available for borrowing.", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        // Get the user ID from the username
+        int userId = getUserIdByUsername(username);
+        if (userId == -1) {
+            JOptionPane.showMessageDialog(null, "User  does not exist.", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        try (Connection conn = db.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            pstmt.setInt(2, bookId);
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0; // Return true if the insert was successful
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false; // Return false if there was an error
+        }
+    }
+
+    private boolean isBookAvailable(int bookId) {
+        String sql = "SELECT quantity FROM books WHERE book_id = ? AND quantity > 0";
+        try (Connection conn = db.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, bookId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                return rs.next(); // If a record is found, the book is available
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false; // Return false if there was an error
+        }
+    }
+
+    private int getUserIdByUsername(String username) {
+        String sql = "SELECT user_id FROM users WHERE username = ?";
+        try (Connection conn = db.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, username);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("user_id"); // Return the user ID
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1; // Return -1 if the user does not exist
+    }
     
 }

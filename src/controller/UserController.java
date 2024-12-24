@@ -262,4 +262,19 @@ public class UserController{
         return false;
     }
     
+    public boolean userExists(String username) {
+        String query = "SELECT COUNT(*) AS count FROM users WHERE username = ?";
+        try (Connection connection = db.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, username);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("count") > 0; // Return true if count is greater than 0
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false; // Return false if there was an error or user does not exist
+    }
+    
 }

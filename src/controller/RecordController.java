@@ -158,6 +158,80 @@ public class RecordController {
 
         return userRecords;
     }
+    
+    public List<RecordDisplay> getReservationRecords(String status) {
+        List<RecordDisplay> reservationRecords = new ArrayList<>();
+
+        String sql = """
+        SELECT u.username, 
+               b.title, 
+               r.reservation_id AS reservation_id, 
+               r.status AS reservation_status, 
+               r.updated_at AS last_updated 
+        FROM Users u 
+        JOIN Reservations r ON u.user_id = r.user_id 
+        JOIN Books b ON r.book_id = b.book_id 
+        WHERE r.status = ? 
+        ORDER BY r.updated_at DESC;
+    """;
+
+        try (Connection connection = db.getConnection(); PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, status);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    String username = rs.getString("username");
+                    String title = rs.getString("title");
+                    int reservationId = rs.getInt("reservation_id");
+                    String reservationStatus = rs.getString("reservation_status");
+                    Timestamp lastUpdated = rs.getTimestamp("last_updated");
+
+                    reservationRecords.add(new RecordDisplay(reservationId, username, title, reservationStatus, lastUpdated, null, null));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return reservationRecords;
+    }
+
+    public List<RecordDisplay> getBorrowingRecords(String status) {
+        List<RecordDisplay> borrowingRecords = new ArrayList<>();
+
+        String sql = """
+        SELECT u.username, 
+               b.title, 
+               b2.borrow_id AS borrowing_id, 
+               b2.status AS borrowing_status, 
+               b2.updated_at AS last_updated 
+        FROM Users u 
+        JOIN Borrowing b2 ON u.user_id = b2.user_id 
+        JOIN Books b ON b2.book_id = b.book_id 
+        WHERE b2.status = ? 
+        ORDER BY b2.updated_at DESC;
+    """;
+
+        try (Connection connection = db.getConnection(); PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, status);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    String username = rs.getString("username");
+                    String title = rs.getString("title");
+                    int borrowingId = rs.getInt("borrowing_id");
+                    String borrowingStatus = rs.getString("borrowing_status");
+                    Timestamp lastUpdated = rs.getTimestamp("last_updated");
+
+                    borrowingRecords.add(new RecordDisplay(0, borrowingId, username, title, borrowingStatus, lastUpdated));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return borrowingRecords;
+    }
 
     private String determineStatus(String reservationStatus, String borrowingStatus) {
         if (reservationStatus != null) {
