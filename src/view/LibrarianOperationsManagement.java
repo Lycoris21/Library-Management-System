@@ -394,104 +394,106 @@ public class LibrarianOperationsManagement extends JFrame {
 
     // Button Editor Class with Edit and Delete Functionality
     class ButtonEditor extends DefaultCellEditor {
-    private JButton button;
-    private String action;
-    private boolean clicked;
-    private JTable currentTable; // Store the reference to the table
+        private JButton button;
+        private String action;
+        private boolean clicked;
+        private JTable currentTable; // Store the reference to the table
 
-    public ButtonEditor(String action, JTable table) {
-        super(new JCheckBox());
-        this.action = action;
-        this.currentTable = table; // Store the table reference
-        button = new JButton();
-        button.setOpaque(true);
+        public ButtonEditor(String action, JTable table) {
+            super(new JCheckBox());
+            this.action = action;
+            this.currentTable = table; // Store the table reference
+            button = new JButton();
+            button.setOpaque(true);
 
-        button.addActionListener(evt -> handleAction());
-    }
+            button.addActionListener(evt -> handleAction());
+        }
 
-    @Override
-    public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-        button.setText(action);
-        clicked = true;
-        return button;
-    }
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+            button.setText(action);
+            clicked = true;
+            return button;
+        }
 
-    @Override
-    public Object getCellEditorValue() {
-        clicked = false;
-        return action;
-    }
+        @Override
+        public Object getCellEditorValue() {
+            clicked = false;
+            return action;
+        }
 
-    @Override
-    public boolean stopCellEditing() {
-        clicked = false;
-        return super.stopCellEditing();
-    }
+        @Override
+        public boolean stopCellEditing() {
+            clicked = false;
+            return super.stopCellEditing();
+        }
 
-    private void handleAction() {
-        stopCellEditing();
-        if (action.equals("More Details")) {
-            try {
-                int rowIndex = currentTable.convertRowIndexToModel(currentTable.getEditingRow()); // Get the selected row index
-                if (rowIndex < 0) {
+        private void handleAction() {
+            stopCellEditing();
+            if (action.equals("More Details")) {
+                try {
+                    int rowIndex = currentTable.getSelectedRow(); // Get the selected row index
+                    if (rowIndex < 0) {
+                        JOptionPane.showMessageDialog(LibrarianOperationsManagement.this, "Please select a record to view details.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return; // Exit if no row is selected
+                    }
+
+                    if (currentTable == reservationTable) {
+                        // Handle reservation details
+                        RecordController.RecordDisplay record = reservationRecords.get(rowIndex);
+                        ReservationDetails reservationDetails = recordC.getReservationDetails(record.getReservationId());
+                        if (reservationDetails != null) {
+                            String[] details = {
+                                "Reservation ID:", String.valueOf(reservationDetails.getId()),
+                                "User  ID:", String.valueOf(reservationDetails.getUserId()),
+                                "Username:", reservationDetails.getUsername(),
+                                "Book ID:", String.valueOf(reservationDetails.getBookId()),
+                                "Book Title:", reservationDetails.getBookTitle(),
+                                "Reservation Status:", reservationDetails.getStatus(),
+                                "Collection Deadline:", reservationDetails.getCollectionDeadline(),
+                                "Reserved On:", reservationDetails.getCreatedAt(),
+                                "Last Updated:", reservationDetails.getUpdatedAt()
+                            };
+                            new DetailsDialog((Frame)SwingUtilities.getWindowAncestor(currentTable), "Reservation Details", details, record.getReservationId());
+                        }
+                    } else if (currentTable == borrowingTable) {
+                        // Handle borrowing details
+                        RecordController.RecordDisplay record = borrowingRecords.get(rowIndex);
+                        BorrowingDetails borrowingDetails = recordC.getBorrowingDetails(record.getBorrowingId());
+                        if (borrowingDetails != null) {
+                            String[] details = {
+                                "Borrowing ID:", String.valueOf(borrowingDetails.getId()),
+                                "User  ID:", String.valueOf(borrowingDetails.getUserId()),
+                                "Username:", borrowingDetails.getUsername(),
+                                "Book ID:", String.valueOf(borrowingDetails.getBookId()),
+                                "Book Title:", borrowingDetails.getBookTitle(),
+                                "Borrowing Status:", borrowingDetails.getStatus(),
+                                "Borrowed On:", borrowingDetails.getBorrowDate(),
+                                "Supposed Return Date:", borrowingDetails.getSupposedReturnDate(),
+                                "Actual Return Date:", borrowingDetails.getActualReturnDate(),
+                                "Last Updated:", borrowingDetails.getUpdatedAt()
+                            };
+                            new BorrowingDetailsDialog((Frame) SwingUtilities.getWindowAncestor(currentTable), "Borrowing Details", details, record.getBorrowingId());
+                        }
+                    }
+                } catch (IndexOutOfBoundsException e) {
                     JOptionPane.showMessageDialog(LibrarianOperationsManagement.this, "Please select a record to view details.", "Error", JOptionPane.ERROR_MESSAGE);
-                    return; // Exit if no row is selected
+                } catch (ClassCastException e) {
+                    JOptionPane.showMessageDialog(LibrarianOperationsManagement.this, "An error occurred while retrieving details. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
-
-                if (currentTable == reservationTable) {
-                    // Handle reservation details
-                    RecordController.RecordDisplay record = reservationRecords.get(rowIndex);
-                    ReservationDetails reservationDetails = recordC.getReservationDetails(record.getReservationId());
-                    if (reservationDetails != null) {
-                        String[] details = {
-                            "Reservation ID:", String.valueOf(reservationDetails.getId()),
-                            "User  ID:", String.valueOf(reservationDetails.getUserId()),
-                            "Username:", reservationDetails.getUsername(),
-                            "Book ID:", String.valueOf(reservationDetails.getBookId()),
-                            "Book Title:", reservationDetails.getBookTitle(),
-                            "Reservation Status:", reservationDetails.getStatus(),
-                            "Collection Deadline:", reservationDetails.getCollectionDeadline(),
-                            "Reserved On:", reservationDetails.getCreatedAt(),
-                            "Last Updated:", reservationDetails.getUpdatedAt()
-                        };
-                        new DetailsDialog((Frame) SwingUtilities.getWindowAncestor(currentTable), "Reservation Details", details);
-                    }
-                } else if (currentTable == borrowingTable) {
-                    // Handle borrowing details
-                    RecordController.RecordDisplay record = borrowingRecords.get(rowIndex);
-                    BorrowingDetails borrowingDetails = recordC.getBorrowingDetails(record.getBorrowingId());
-                    if (borrowingDetails != null) {
-                        String[] details = {
-                            "Borrowing ID:", String.valueOf(borrowingDetails.getId()),
-                            "User  ID:", String.valueOf(borrowingDetails.getUserId()),
-                            "Username:", borrowingDetails.getUsername(),
-                            "Book ID:", String.valueOf(borrowingDetails.getBookId()),
-                            "Book Title:", borrowingDetails.getBookTitle(),
-                            "Borrowing Status:", borrowingDetails.getStatus(),
-                            "Borrowed On:", borrowingDetails.getBorrowDate(),
-                            "Supposed Return Date:", borrowingDetails.getSupposedReturnDate(),
-                            "Actual Return Date:", borrowingDetails.getActualReturnDate(),
-                            "Last Updated:", borrowingDetails.getUpdatedAt()
-                        };
-                        new DetailsDialog((Frame) SwingUtilities.getWindowAncestor(currentTable), "Borrowing Details", details);
-                    }
-                }
-            } catch (IndexOutOfBoundsException e) {
-                JOptionPane.showMessageDialog(LibrarianOperationsManagement.this, "Please select a record to view details.", "Error", JOptionPane.ERROR_MESSAGE);
-            } catch (ClassCastException e) {
-                JOptionPane.showMessageDialog(LibrarianOperationsManagement.this, "An error occurred while retrieving details. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
-}
-
     public class DetailsDialog extends JDialog {
-        private final JPanel panel;
 
-        public DetailsDialog(Frame parent, String title, String[] details) {
+        private final JPanel panel;
+        private final int reservationId; // Store the reservation ID for updates
+
+        public DetailsDialog(Frame parent, String title, String[] details, int reservationId) {
             super(parent, title, true);
+            this.reservationId = reservationId; // Store the reservation ID
             setTitle("More Details");
-            panel = new JPanel(new GridLayout(details.length / 2, 2));
+            panel = new JPanel(new GridLayout(details.length / 2 + 1, 2)); // Add an extra row for buttons
             panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
             setContentPane(panel);
 
@@ -499,6 +501,71 @@ public class LibrarianOperationsManagement extends JFrame {
                 panel.add(new JLabel(details[i])); // Label
                 panel.add(new JLabel(details[i + 1])); // Value
             }
+
+            // Add buttons for reservation actions
+            JButton collectedButton = new JButton("Collected");
+            collectedButton.addActionListener(e -> {
+                // Update the reservation status to "Collected" in the database
+                boolean success = recordC.updateReservationStatus(reservationId, "Collected");
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Reservation status updated to 'Collected'.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    dispose(); // Close the dialog
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to update reservation status.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            });
+            panel.add(collectedButton);
+
+            JButton voidButton = new JButton("Void");
+            voidButton.addActionListener(e -> {
+                // Update the reservation status to "Void" in the database
+                boolean success = recordC.updateReservationStatus(reservationId, "Void");
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Reservation status updated to 'Void'.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    dispose(); // Close the dialog
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to update reservation status.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            });
+            panel.add(voidButton);
+
+            setSize(400, 300);
+            setLocationRelativeTo(parent);
+            setVisible(true);
+        }
+    }
+    
+    public class BorrowingDetailsDialog extends JDialog {
+
+        private final JPanel panel;
+        private final int borrowingId; // Store the borrowing ID for updates
+
+        public BorrowingDetailsDialog(Frame parent, String title, String[] details, int borrowingId) {
+            super(parent, title, true);
+            this.borrowingId = borrowingId; // Store the borrowing ID
+            setTitle("More Details");
+            panel = new JPanel(new GridLayout(details.length / 2 + 1, 2)); // Add an extra row for buttons
+            panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+            setContentPane(panel);
+
+            for (int i = 0; i < details.length; i += 2) {
+                panel.add(new JLabel(details[i])); // Label
+                panel.add(new JLabel(details[i + 1])); // Value
+            }
+
+            // Add button for returning the book
+            JButton returnedButton = new JButton("Returned");
+            returnedButton.addActionListener(e -> {
+                // Update the borrowing status to "Returned" in the database
+                boolean success = recordC.updateBorrowingStatus(borrowingId, "Returned");
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Borrowing status updated to 'Returned'.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    dispose(); // Close the dialog
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to update borrowing status.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            });
+            panel.add(returnedButton);
 
             setSize(400, 300);
             setLocationRelativeTo(parent);

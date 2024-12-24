@@ -16,6 +16,34 @@ public class RecordController {
     public RecordController(Database db) {
         this.db = db;
     }
+    
+    public boolean updateReservationStatus(int reservationId, String newStatus) {
+        String sql = "UPDATE reservations SET status = ? WHERE reservation_id = ?";
+
+        try (Connection conn = db.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, newStatus);
+            pstmt.setInt(2, reservationId);
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0; // Return true if the update was successful
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false; // Return false if there was an error
+        }
+    }
+    
+    public boolean updateBorrowingStatus(int borrowingId, String newStatus) {
+        String sql = "UPDATE borrowing SET status = ? WHERE borrow_id = ?";
+
+        try (Connection conn = db.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, newStatus);
+            pstmt.setInt(2, borrowingId);
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0; // Return true if the update was successful
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false; // Return false if there was an error
+        }
+    }
 
     public boolean cancelReservation(int reservationId) {
         String sql = "UPDATE Reservations SET status = 'Void' WHERE reservation_id = ? AND status = 'Pending'";
